@@ -16,6 +16,8 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
+# RUN python main.py
+
 # Command to run the application
 CMD ["python", "app.py"]
 
