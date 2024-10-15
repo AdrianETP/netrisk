@@ -11,6 +11,7 @@ frontend_data/node_modules
 frontend_data/dist
 frontend_data/dist-ssr
 frontend_data/*.local
+frontend_data/src/firebase.js
 
 # Editor directories and files
 frontend_data/.vscode/*
