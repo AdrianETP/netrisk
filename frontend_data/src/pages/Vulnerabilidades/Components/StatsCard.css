@@ -1,0 +1,15 @@
+.stats-card {
+    background-color: #292929;
+    justify-content: space-around;
+    width: 35vw;
+    padding: 10px;
+    border-radius: 15px;
+    border: solid 1px #41434A;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-around;
+}

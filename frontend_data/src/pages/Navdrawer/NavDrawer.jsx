@@ -17,7 +17,7 @@ import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import ScatterPlotOutlinedIcon from "@mui/icons-material/ScatterPlotOutlined";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../../assets/logo.jpeg";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 

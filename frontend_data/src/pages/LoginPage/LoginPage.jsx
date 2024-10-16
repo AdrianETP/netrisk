@@ -2,11 +2,6 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
-import {
-	getAuth,
-	setPersistence,
-	browserSessionPersistence,
-} from "firebase/auth"; // Import necessary Firebase Auth functions
 import "./LoginPage.css";
 import { Input } from "@nextui-org/react";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";

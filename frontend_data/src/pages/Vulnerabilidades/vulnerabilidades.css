@@ -20,11 +20,12 @@
     margin: auto;
 }
 
-.tabla-activos {
+.tabla-vulnerabilidades {
     display: flex;
     justify-content: center; /* Center horizontally */
     align-items: center;     /* Center vertically */
     width: 100%;
     padding-left: 25px;
+    padding-right: 25px;
     height: 38vh;
 }
