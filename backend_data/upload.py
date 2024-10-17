@@ -141,25 +141,17 @@ def ask_riesgo(prompt):
         return jsonify({"status": 500, "error": str(e)}), 500
     ollamaClient = ollama.Client(host="http://myollama:11434")
     # Generate an embedding for the prompt and retrieve the most relevant doc
-    words = prompt.split()
-    words_to_remove = ["for", "the", "what",
-                       "which", "are", "that", "where", "on", "a", "this", "to"]
-
-    # Create a new list of words that do not include the words to remove
-    filtered_words = [word for word in words if word not in words_to_remove]
 
     # Join the filtered words back into a string
-    modprompt = ' '.join(filtered_words)
     response = ollamaClient.embeddings(
-        prompt=modprompt,
+        prompt=prompt,
         model="mxbai-embed-large"
     )
     results = collection.query(
         query_embeddings=[response["embedding"]],
         n_results=1
     )
-    data = results['documents'][0][0]
-    print("embeddings: ", data)
+    data = results['documents'][0]
 
 # Generate a response combining the prompt and data we retrieved in step 2
     output = ollamaClient.generate(
@@ -173,4 +165,4 @@ def ask_riesgo(prompt):
         """
     )
 
-    return jsonify({"status": 200, "response": output['response'], "key words": modprompt})
+    return jsonify({"status": 200, "response": output['response'], "data": data})

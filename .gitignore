@@ -26,3 +26,4 @@ frontend_data/*.sw?
 
 backend_data/venv
 mongodb_data
+backend_data/__pycache__
