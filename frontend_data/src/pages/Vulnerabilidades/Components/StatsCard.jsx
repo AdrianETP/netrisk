@@ -3,6 +3,7 @@ import "./StatsCard.css";
 import { Typography } from "@mui/material";
 
 
+
 const StatsCard = ({ stats }) => {
 	return (
 		<div className="stats-card">

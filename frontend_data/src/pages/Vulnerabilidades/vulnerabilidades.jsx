@@ -38,8 +38,7 @@ function Vulnerabilidades() {
 		{ key: "ip", label: "IP" },
 		{ key: "macAddress", label: "MAC ADDRESS" },
 		{ key: "device", label: "DISPOSITIVO" },
-		{ key: "operatingSystem", label: "SISTEMA OPERATIVO" },
-		{ key: "name", label: "NOMBRE" },
+		{ key: "vulnerability", label: "VULNERABILIDAD" },
 		{ key: "impact", label: "IMPACTO" },
 	];
 
@@ -49,26 +48,23 @@ function Vulnerabilidades() {
 			ip: "192.168.0.1",
 			macAddress: "00:0a:95:9d:68:16",
 			device: "Router",
-			operatingSystem: "Linux",
-			name: "Dispositivo 1",
-			impact: "Alto",
+			vulnerability: "CVE-2020-3452 Cisco ASA Path Traversal",
+			impact: "Crítico",
 		},
 		{
 			id: 2,
 			ip: "192.168.0.2",
 			macAddress: "00:0a:95:9d:68:17",
 			device: "PC",
-			operatingSystem: "Windows 10",
-			name: "Dispositivo 2",
-			impact: "Medio",
+			vulnerability: "MS17-010 EternalBlue SMB Remote Code Execution",
+			impact: "Alto",
 		},
 		{
 			id: 3,
 			ip: "192.168.0.3",
 			macAddress: "00:0a:95:9d:68:18",
 			device: "Servidor",
-			operatingSystem: "Ubuntu",
-			name: "Dispositivo 3",
+			vulnerability: "CVE-2019-0708 BlueKeep RDP Remote Code Execution",
 			impact: "Bajo",
 		},
 		{
@@ -76,40 +72,17 @@ function Vulnerabilidades() {
 			ip: "192.168.0.4",
 			macAddress: "00:0a:95:9d:68:19",
 			device: "Smartphone",
-			operatingSystem: "Android",
-			name: "Dispositivo 4",
-			impact: "Medio",
+			vulnerability: "CVE-2021-1879 WebKit Use-After-Free Vulnerability",
+			impact: "Moderado",
 		},
 	];
 
-	const editableColumns = ["impact"];
+
+	const editableColumns = [""];
 
 	const dropdownOptions = {
-		impact: ["Alto", "Medio", "Bajo"],
+		
 	};
-	/*const dropdownOptions = {
-		status: [
-			{
-				value: "active",
-				label: "Active",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-			{
-				value: "inactive",
-				label: "Inactive",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-			{
-				value: "pending",
-				label: "Pending",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-		],
-		// Add other columns as needed
-	}; */
 
 	return (
 		<div>
