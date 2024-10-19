@@ -29,6 +29,7 @@ import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import AddIcon from "@mui/icons-material/Add"; // Icono para agregar
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
 
 
 import {
@@ -46,7 +47,8 @@ function EditableTable({
 }) {
 	const [data, setData] = useState(initialData);
 	const [hoveredCell, setHoveredCell] = useState(null); // Estado para controlar la celda activa
-	const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Using useDisclosure for modal
+	const modal1 = useDisclosure();
+	const modal2 = useDisclosure();
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
 
@@ -64,7 +66,11 @@ function EditableTable({
 
 	const handleModalOpen = (item) => {
 		setSelectedItem(item);
-		onOpen(); // Open the modal
+		modal1.onOpen(); // Open the modal
+	};
+
+	const handleOpenModal2 = () => {
+		modal2.onOpen();
 	};
 
 	const renderChip = (value) => {
@@ -269,14 +275,27 @@ function EditableTable({
 					classNames={{
 						wrapper: "bg-[#2D2D2D]",
 						th: "bg-[#404040] text-color-[#F6F6F6] font-semibold text-xs",
-						td: "font-normal text-xs",
+						td: "font-normal text-xs max-w-[180px]",
 						base: "max-h-[240px] overflow-auto",
 						table: "min-h-[120px]",
 					}}
 				>
 					<TableHeader>
 						{columns.map((column) => (
-							<TableColumn key={column.key}>{column.label}</TableColumn>
+							<TableColumn key={column.key}>
+								{column.label}
+								{column.key === "potentialLoss" && (
+									<span
+										onClick={handleOpenModal2}
+										style={{ cursor: "pointer", marginLeft: "8px" }}
+									>
+										<HelpOutlineRoundedIcon
+											fontSize="small"
+											style={{ marginBottom: "2px" }}
+										/>
+									</span>
+								)}
+							</TableColumn>
 						))}
 					</TableHeader>
 					<TableBody>
@@ -292,8 +311,9 @@ function EditableTable({
 					</TableBody>
 				</Table>
 				<Modal
-					isOpen={isOpen}
-					onOpenChange={onOpenChange}
+					isOpen={modal1.isOpen}
+					onClose={modal1.onClose}
+					onOpenChange={modal1.onOpenChange}
 					radius="lg"
 					classNames={{
 						base: "bg-[#202020] border-[#41434A] border-2", // Added z-index to the modal
@@ -452,7 +472,7 @@ function EditableTable({
 										fullWidth
 										color="default"
 										variant="light"
-										onPress={onClose}
+										onPress={modal1.onClose}
 									>
 										Cancelar
 									</Button>
@@ -472,6 +492,133 @@ function EditableTable({
 										<b>Guardar</b>
 									</Button>
 								</ModalFooter>
+							</>
+						)}
+					</ModalContent>
+				</Modal>
+				<Modal
+					isOpen={modal2.isOpen}
+					onClose={modal2.onClose}
+					onOpenChange={modal2.onOpenChange}
+					radius="lg"
+					size="3xl"
+					scrollBehavior="inside"
+					classNames={{
+						base: "bg-[#202020] border-[#41434A] border-2", // Added z-index to the modal
+						backdrop: "",
+					}}
+				>
+					<ModalContent>
+						{(onClose) => (
+							<>
+								<ModalHeader className="flex flex-col gap-1">
+									¿Cómo calcula NetRisk la pérdida potencial?
+								</ModalHeader>
+								<ModalBody>
+									<Typography variant="h5" gutterBottom>
+										Metodología FAIR
+									</Typography>
+									<Typography paragraph>
+										FAIR (Factor Analysis of Information Risk) es un marco de
+										referencia utilizado para cuantificar y analizar el riesgo
+										relacionado con la seguridad de la información. Se centra en
+										la evaluación de pérdidas potenciales derivadas de
+										vulnerabilidades y permite a las organizaciones tomar
+										decisiones informadas sobre cómo gestionar esos riesgos.
+									</Typography>
+
+									<Typography variant="h6" gutterBottom>
+										Inputs de la Metodología FAIR
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										1. <strong>Activos</strong>:
+										<ul>
+											<li>
+												<strong>Valor del Activo:</strong> El valor monetario
+												que representa el activo crítico (por ejemplo, datos
+												sensibles, sistemas de información).
+											</li>
+										</ul>
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										2. <strong>Amenazas</strong>:
+										<ul>
+											<li>
+												<strong>Tipo de Amenaza:</strong> Identificación de las
+												amenazas que pueden explotar una vulnerabilidad (por
+												ejemplo, hackers, empleados deshonestos).
+											</li>
+											<li>
+												<strong>Frecuencia de Amenazas:</strong> La frecuencia
+												con la que se presentan amenazas similares, expresada en
+												un período de tiempo.
+											</li>
+										</ul>
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										3. <strong>Vulnerabilidades</strong>:
+										<ul>
+											<li>
+												<strong>Descripción de la Vulnerabilidad:</strong>{" "}
+												Características de la vulnerabilidad que permite que una
+												amenaza acceda al activo.
+											</li>
+											<li>
+												<strong>Probabilidad de Explotación:</strong> La
+												probabilidad de que una vulnerabilidad sea efectivamente
+												explotada por una amenaza.
+											</li>
+										</ul>
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										4. <strong>Consecuencias</strong>:
+										<ul>
+											<li>
+												<strong>Impacto Económico:</strong> La cantidad de
+												dinero que se podría perder si la vulnerabilidad es
+												explotada.
+											</li>
+											<li>
+												<strong>Tiempo de Recuperación:</strong> Tiempo que se
+												necesitaría para recuperarse de la explotación de la
+												vulnerabilidad.
+											</li>
+										</ul>
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										5. <strong>Controles</strong>:
+										<ul>
+											<li>
+												<strong>Efectividad de los Controles:</strong>{" "}
+												Evaluación de la efectividad de los controles de
+												seguridad existentes.
+											</li>
+										</ul>
+									</Typography>
+
+									<Typography variant="h6" gutterBottom>
+										Cálculo de Pérdida Potencial
+									</Typography>
+
+									<Typography paragraph>
+										Con estos inputs, la metodología FAIR permite calcular la
+										pérdida potencial mediante la siguiente fórmula:
+									</Typography>
+
+									<Typography variant="body1" gutterBottom>
+										<code>
+											Pérdida Potencial = Valor del Activo × Probabilidad de
+											Explotación × Impacto
+										</code>
+									</Typography>
+								</ModalBody>
+
+								<ModalFooter></ModalFooter>
 							</>
 						)}
 					</ModalContent>

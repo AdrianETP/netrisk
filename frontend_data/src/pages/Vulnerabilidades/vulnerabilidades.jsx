@@ -1,10 +1,8 @@
-import React from "react";
+import { useState } from "react";
 import ProgressCircle from "../Components/ProgressCircle.jsx";
 import EditableTable from "../Components/EditableTable.jsx";
-import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
-import { Button } from "@nextui-org/button";
+import { Button, ButtonGroup } from "@nextui-org/button";
 import "./vulnerabilidades.css";
-import placeholder from "./placeholder-matriz.png";
 import StatsCard from "./Components/StatsCard.jsx";
 import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
@@ -12,6 +10,8 @@ import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutl
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 
 function Vulnerabilidades() {
+	const [selectedTable, setSelectedTable] = useState("table1");
+
 	const stats = [
 		{
 			icon: <ErrorOutlinedIcon style={{ fontSize: 24 }} />,
@@ -34,48 +34,110 @@ function Vulnerabilidades() {
 			color: "#17C964",
 		},
 	];
-	const columns = [
-		{ key: "ip", label: "IP" },
-		{ key: "macAddress", label: "MAC ADDRESS" },
-		{ key: "device", label: "DISPOSITIVO" },
+	const columnsTable1 = [
+		{ key: "id", label: "ID DEL ACTIVO" },
 		{ key: "vulnerability", label: "VULNERABILIDAD" },
+		{ key: "threat", label: "AMENAZA" },
+		{ key: "potentialLoss", label: "PÉRDIDA POTENCIAL" },
 		{ key: "impact", label: "IMPACTO" },
 	];
 
-	const initialData = [
+	const initialDataTable1 = [
 		{
-			id: 1,
-			ip: "192.168.0.1",
-			macAddress: "00:0a:95:9d:68:16",
-			device: "Router",
-			vulnerability: "CVE-2020-3452 Cisco ASA Path Traversal",
+			id: "router1",
+			vulnerability: "Puerto 23 (Telnet) Abierto",
+			threat: "Acceso no autorizado",
+			impact: "Crítico",
+			potentialLoss: "$10,000 - $50,000",
+		},
+		{
+			id: "pc2",
+			vulnerability: "CVE-2020-3452 Cisco ASA",
+			threat: "Ejecución remota de código",
+			impact: "Alto",
+			potentialLoss: "$20,000 - $75,000",
+		},
+		{
+			id: "server3",
+			vulnerability: "CVE-2019-0708 BlueKeep",
+			threat: "Acceso remoto no autorizado",
+			impact: "Bajo",
+			potentialLoss: "$5,000 - $20,000",
+		},
+		{
+			id: "smartphone4",
+			vulnerability: "CVE-2021-1879 WebKit",
+			threat: "Ejecución de código malicioso",
+			impact: "Moderado",
+			potentialLoss: "$15,000 - $30,000",
+		},
+	];
+
+	const columnsTable2 = [
+		{ key: "email", label: "CORREO" },
+		{ key: "vulnerability", label: "VULNERABILIDAD" },
+		{ key: "threat", label: "AMENAZA" },
+		{ key: "potentialLoss", label: "PÉRDIDA POTENCIAL" },
+		{ key: "impact", label: "IMPACTO" },
+	];
+
+	const initialDataTable2 = [
+		{
+			id: 3,
+			email: "johndoe@example.com",
+			vulnerability: "Última capacitación hace 7 meses",
+			threat: "Acceso no autorizado",
+			potentialLoss: "$1,000 - $5,000",
 			impact: "Crítico",
 		},
 		{
-			id: 2,
-			ip: "192.168.0.2",
-			macAddress: "00:0a:95:9d:68:17",
-			device: "PC",
-			vulnerability: "MS17-010 EternalBlue SMB Remote Code Execution",
+			id: 4,
+			email: "janedoe@example.com",
+			vulnerability:
+				"Incumplimiento del rol 'Control de Acceso' del NIST",
+			threat: "Phishing",
+			potentialLoss: "$500 - $3,000",
 			impact: "Alto",
 		},
 		{
-			id: 3,
-			ip: "192.168.0.3",
-			macAddress: "00:0a:95:9d:68:18",
-			device: "Servidor",
-			vulnerability: "CVE-2019-0708 BlueKeep RDP Remote Code Execution",
+			id: 5,
+			email: "alicesmith@example.com",
+			vulnerability: "Última capacitación hace 7 meses",
+			threat: "Malware",
+			potentialLoss: "$2,000 - $7,000",
+			impact: "Moderado",
+		},
+		{
+			id: 6,
+			email: "N/A",
+
+			vulnerability:
+				"No se ha cumplido con el rol de 'Senior Agency Official' del NIST",
+			threat: "Robo de identidad",
+			potentialLoss: "$1,500 - $4,500",
+			impact: "Moderado",
+		},
+		{
+			id: 7,
+			email: "emilydavis@example.com",
+			vulnerability:
+				"No se ha cumplido con el rol de 'Respuestas a Incidentes' del NIST",
+			threat: "Denegación de servicio",
+			potentialLoss: "$300 - $2,000",
 			impact: "Bajo",
 		},
 		{
-			id: 4,
-			ip: "192.168.0.4",
-			macAddress: "00:0a:95:9d:68:19",
-			device: "Smartphone",
-			vulnerability: "CVE-2021-1879 WebKit Use-After-Free Vulnerability",
-			impact: "Moderado",
+			id: 8,
+			email: "N/A",
+			vulnerability:
+				"No se ha cumplido con el rol de 'Auditoría y Responsabilidad' del NIST",
+			threat: "Phishing",
+			potentialLoss: "$1,000 - $6,000",
+			impact: "Bajo",
 		},
 	];
+
+
 
 
 	const editableColumns = [""];
@@ -86,8 +148,8 @@ function Vulnerabilidades() {
 
 	return (
 		<div>
-			<div className="activos-top">
-				<div className="flex flex-col px-4 circulos-activos">
+			<div className="vuln-top">
+				<div className="flex flex-row px-4 circulos-vuln">
 					<div className="flex flex-row p-4 gap-4 mb-2">
 						<ProgressCircle
 							progressValue={100} // Controls the progress bar percentage
@@ -106,21 +168,52 @@ function Vulnerabilidades() {
 							label="Mitigación"
 						/>
 					</div>
-					<div className="">
+					<div className="flex justify-center w-full">
 						<StatsCard stats={stats} />
 					</div>
 				</div>
-				<div className="diagrama-red">
-					{/*<img src={placeholder}></img>*/}
-				</div>
+			</div>
+			<div className="btn-group-vul">
+				<ButtonGroup>
+					<Button
+						onClick={() => setSelectedTable("table1")}
+						className={`px-4 py-2 text-sm ${
+							selectedTable === "table1"
+								? "bg-[#A1A1AA] text-[#202020] font-semibold" // Selected: Light grey background, dark text
+								: "bg-transparent text-[#A1A1AA] border-[#A1A1AA] border-2" // Unselected: Transparent background, grey border and text
+						}`}
+					>
+						Vulnerabilidades técnicas
+					</Button>
+					<Button
+						onClick={() => setSelectedTable("table2")}
+						className={`px-4 py-2 text-sm ${
+							selectedTable === "table2"
+								? "bg-[#A1A1AA] text-[#202020] font-semibold" // Selected: Light grey background, dark text
+								: "bg-transparent text-[#A1A1AA] border-[#A1A1AA] border-2" // Unselected: Transparent background, grey border and text
+						}`}
+					>
+						Vulnerabilidades organizacionales
+					</Button>
+				</ButtonGroup>
 			</div>
 			<div className="tabla-vulnerabilidades">
-				<EditableTable
-					columns={columns}
-					initialData={initialData}
-					editableColumns={editableColumns}
-					dropdownOptions={dropdownOptions}
-				/>
+				{selectedTable === "table1" && (
+					<EditableTable
+						columns={columnsTable1}
+						initialData={initialDataTable1}
+						editableColumns={editableColumns}
+						dropdownOptions={dropdownOptions}
+					/>
+				)}
+				{selectedTable === "table2" && (
+					<EditableTable
+						columns={columnsTable2}
+						initialData={initialDataTable2}
+						editableColumns={editableColumns}
+						dropdownOptions={dropdownOptions}
+					/>
+				)}
 			</div>
 		</div>
 	);
