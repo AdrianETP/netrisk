@@ -111,7 +111,7 @@ function Vulnerabilidades() {
 					</div>
 				</div>
 				<div className="diagrama-red">
-					<img src={placeholder}></img>
+					{/*<img src={placeholder}></img>*/}
 				</div>
 			</div>
 			<div className="tabla-vulnerabilidades">

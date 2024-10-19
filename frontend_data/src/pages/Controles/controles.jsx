@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import SmallStatsCard from "./Components/SmallStatsCard";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
@@ -11,9 +12,7 @@ import "./controles.css";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import { borderRadius } from "@mui/system";
-
-
+import ControlCard from "./Components/ControlCard";
 
 function Controles() {
 	const stats = [
@@ -83,9 +82,13 @@ function Controles() {
 		},
 	];
 
+	const [inputValue, setInputValue] = useState("");
+	const filteredControles = controles.filter((control) =>
+		control.nombre.toLowerCase().includes(inputValue.toLowerCase())
+	);
 
 	return (
-		<div>
+		<div className="controles-container-full pb-6">
 			<div className="flex flex-row gap-4 p-4 ">
 				{stats.map((stat, index) => (
 					<SmallStatsCard
@@ -114,9 +117,11 @@ function Controles() {
 					disablePortal
 					options={controles}
 					getOptionLabel={(option) => option.nombre}
+					onInputChange={(event, newInputValue) => {
+						setInputValue(newInputValue);
+					}}
 					sx={{
 						width: 300,
-						padding: "20px",
 					}}
 					renderInput={(params) => (
 						<TextField
@@ -132,24 +137,41 @@ function Controles() {
 								style: { borderRadius: 12 },
 							}}
 							sx={{
+								height: "45px", // Adjust the height as needed
 								"& .MuiOutlinedInput-root": {
+									height: "100%", // Ensure the input uses full height
 									"& fieldset": {
-										borderWidth: 2, // Adjust the border width
-										borderColor: "#A1A1AA", // Adjust the border color
+										borderWidth: 2,
+										borderColor: "#A1A1AA",
 									},
 									"&:hover fieldset": {
-										borderColor: "#f6f6f6", // Change the border color on hover
+										borderColor: "#f6f6f6",
 									},
 									"&.Mui-focused fieldset": {
-										borderColor: "#f6f6f6", // Change the border color when focused
+										borderColor: "#f6f6f6",
 									},
+								},
+								"& .MuiInputBase-input": {
+									padding: "12px", // Adjust the padding to center text
 								},
 							}}
 						/>
 					)}
 				/>
 			</div>
+			<div className="flex flex-row px-6 gap-6 flex-wrap	">
+				{filteredControles.map((control, index) => (
+					<ControlCard
+						key={index}
+						nombre={control.nombre}
+						code={control.code}
+						description={control.description}
+						initialState={control.state}
+					/>
+				))}
+			</div>
 		</div>
 	);
 }
+
 export default Controles;

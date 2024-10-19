@@ -8,81 +8,61 @@ import placeholder from "./placeholder-diagrama-red.png";
 
 function Activos() {
 	const columns = [
+		{ key: "idTabla", label: "ID" },
 		{ key: "ip", label: "IP" },
 		{ key: "macAddress", label: "MAC ADDRESS" },
 		{ key: "device", label: "DISPOSITIVO" },
 		{ key: "operatingSystem", label: "SISTEMA OPERATIVO" },
-		{ key: "name", label: "NOMBRE" },
+		{ key: "desc", label: "DESCRIPCIÓN" },
 		{ key: "impact", label: "IMPACTO" },
 	];
 
 	const initialData = [
 		{
 			id: 1,
+			idTabla: "Router1",
 			ip: "192.168.0.1",
 			macAddress: "00:0a:95:9d:68:16",
 			device: "Router",
 			operatingSystem: "Linux",
-			name: "Dispositivo 1",
-			impact: "Alto",
+			desc: "",
+			impact: "Crítico",
 		},
 		{
 			id: 2,
+			idTabla: "PC2",
 			ip: "192.168.0.2",
 			macAddress: "00:0a:95:9d:68:17",
 			device: "PC",
 			operatingSystem: "Windows 10",
-			name: "Dispositivo 2",
-			impact: "Medio",
+			desc: "Dispositivo 2",
+			impact: "Alto",
 		},
 		{
 			id: 3,
+			idTabla: "Servidor3",
 			ip: "192.168.0.3",
 			macAddress: "00:0a:95:9d:68:18",
 			device: "Servidor",
 			operatingSystem: "Ubuntu",
-			name: "Dispositivo 3",
-			impact: "Bajo",
+			desc: "Dispositivo 3",
+			impact: "Moderado",
 		},
 		{
 			id: 4,
+			idTabla: "Smartphone4",
 			ip: "192.168.0.4",
 			macAddress: "00:0a:95:9d:68:19",
 			device: "Smartphone",
 			operatingSystem: "Android",
-			name: "Dispositivo 4",
-			impact: "Medio",
+			desc: "Dispositivo 4",
+			impact: "Bajo",
 		},
 	];
 
-	const editableColumns = ["impact"];
+	const editableColumns = ["desc"];
+	const dropdownOptions = [""];
 
-	const dropdownOptions = {
-		impact: ["Alto", "Medio", "Bajo"],
-	};
-	/*const dropdownOptions = {
-		status: [
-			{
-				value: "active",
-				label: "Active",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-			{
-				value: "inactive",
-				label: "Inactive",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-			{
-				value: "pending",
-				label: "Pending",
-				icon: ErrorOutlinedIcon,
-				color: "#000000",
-			},
-		],
-		// Add other columns as needed
-	}; */
 
 	return (
 		<div>
@@ -117,7 +97,7 @@ function Activos() {
 					</div>
 				</div>
 				<div className="diagrama-red">
-					<img src={placeholder}></img>
+					{/*<img src={placeholder}></img>*/}
 				</div>
 			</div>
 			<div className="tabla-activos">
