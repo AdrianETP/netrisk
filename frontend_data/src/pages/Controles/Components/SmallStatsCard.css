@@ -1,0 +1,17 @@
+.stats-card-sm {
+    background-color: #292929;
+    justify-content: flex-start;
+    width: auto;
+    min-width: 17%;
+    padding: 15px;
+    padding-inline: 20px;
+    border-radius: 15px;
+    border: solid 1px #41434A;
+}
+
+.stats-card-sm-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
