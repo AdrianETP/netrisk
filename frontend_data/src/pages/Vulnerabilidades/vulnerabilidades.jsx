@@ -147,7 +147,7 @@ function Vulnerabilidades() {
 	};
 
 	return (
-		<div>
+		<div className="">
 			<div className="vuln-top">
 				<div className="flex flex-row px-4 circulos-vuln">
 					<div className="flex flex-row p-4 gap-4 mb-2">

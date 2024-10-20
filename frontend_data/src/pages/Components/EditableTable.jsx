@@ -31,19 +31,20 @@ import AddIcon from "@mui/icons-material/Add"; // Icono para agregar
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
 
-
 import {
 	Info as InfoIcon,
 	NetworkWifi as NetworkWifiIcon,
 } from "@mui/icons-material";
 
 import { Typography, Box, Grid } from "@mui/material";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 function EditableTable({
 	columns,
 	initialData,
 	editableColumns,
 	dropdownOptions,
+	baseHeight = "max-h-[240px]", // Set default value here
 }) {
 	const [data, setData] = useState(initialData);
 	const [hoveredCell, setHoveredCell] = useState(null); // Estado para controlar la celda activa
@@ -51,6 +52,7 @@ function EditableTable({
 	const modal2 = useDisclosure();
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
+	const [isCopied, setIsCopied] = useState(false); // State to track if the value is copied
 
 	const handleSelectChange = (rowId, columnKey, newValue) => {
 		setData((prevData) =>
@@ -60,8 +62,15 @@ function EditableTable({
 		);
 	};
 
-	const handleCopyToClipboard = (text) => {
-		navigator.clipboard.writeText(text);
+	const handleCopyToClipboard = (value) => {
+		navigator.clipboard.writeText(value).then(() => {
+			setIsCopied(true); // Set copied state to true
+
+			// Reset the icon after 2 seconds
+			setTimeout(() => {
+				setIsCopied(false);
+			}, 1000);
+		});
 	};
 
 	const handleModalOpen = (item) => {
@@ -144,6 +153,33 @@ function EditableTable({
 
 		if (isEditable) {
 			// Check if the column should render a modal button instead of a dropdown
+			if (column.key === "pendingActions") {
+				return (
+					<div style={{ display: "flex", alignItems: "center" }}>
+						<Button
+							fullWidth
+							size="sm"
+							variant="bordered"
+							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+							onClick={() => handleModalOpen(item)}
+						>
+							{item.pendingActions ? (
+								<>
+									Ver
+									<VisibilityRoundedIcon
+										style={{ height: "auto", width: "15px" }}
+									/>
+								</>
+							) : (
+								<>
+									Agregar
+									<AddIcon style={{}} />
+								</>
+							)}
+						</Button>
+					</div>
+				);
+			}
 			if (column.key === "desc") {
 				// Replace with the actual key for the column
 				return (
@@ -177,6 +213,8 @@ function EditableTable({
 			return (
 				<Select
 					selectedKey={item[column.key]}
+					placeholder={item[column.key]}
+					size="sm"
 					onChange={(key) => handleSelectChange(item.id, column.key, key)}
 					className="capitalize"
 				>
@@ -202,13 +240,21 @@ function EditableTable({
 						marginLeft: "8px",
 						visibility:
 							hoveredCell === item.id + column.key ? "visible" : "hidden", // Control visibility
+						transition: "opacity 0.3s ease", // Smooth transition for visibility
 					}}
 				>
 					<IconButton
 						onClick={() => handleCopyToClipboard(cellValue)}
 						size="small"
 					>
-						<ContentCopyIcon fontSize="small" />
+						{isCopied ? (
+							<CheckRoundedIcon
+								fontSize="small"
+								style={{ transition: "opacity 0.3s ease" }}
+							/> // Check icon with animation
+						) : (
+							<ContentCopyIcon fontSize="small" />
+						)}
 					</IconButton>
 				</div>
 			</div>
@@ -276,7 +322,7 @@ function EditableTable({
 						wrapper: "bg-[#2D2D2D]",
 						th: "bg-[#404040] text-color-[#F6F6F6] font-semibold text-xs",
 						td: "font-normal text-xs max-w-[180px]",
-						base: "max-h-[240px] overflow-auto",
+						base: `${baseHeight} overflow-auto`, // Corrected string concatenation
 						table: "min-h-[120px]",
 					}}
 				>
