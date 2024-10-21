@@ -26,12 +26,6 @@ Asegúrate de tener instalados los siguientes componentes:
 
 - **Docker Compose** (versión 2.29.2-desktop.2 o superior)
 
-- **Node.js** (versión 18.0.0 o superior)
-
-- **Python** (versión 3.12 o superior)
-
-- **MongoDB** (versión 8.0 o superior)
-
   
 
 ---
