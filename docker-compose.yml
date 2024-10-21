@@ -6,11 +6,11 @@ services:
       context: ./backend_data
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend_data:/app
     depends_on: 
       - chromadb
-    hostname: mflask
+    hostname: myflask
+    networks:
+      - default
 
   mongo:
     image: mongo:latest
@@ -19,6 +19,8 @@ services:
     volumes:
       - mongo_data:/data/db  # Persist MongoDB data
     hostname: mymongo
+    networks:
+      - default
 
   chromadb:
     image: chromadb/chroma:latest
@@ -35,6 +37,8 @@ services:
       timeout: 10s
       retries: 5
     hostname: mychroma
+    networks:
+      - default
 
   kali:
     image: kalilinux/kali-rolling
@@ -42,7 +46,10 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - kali_data:/root  # Persist data in the /root directory      
+      - kali_data:/root  # Persist data in the /root directory
+    networks:
+      - default
+      - ubuntu_network  # Move Kali to the separate subnet
 
   react-frontend:
     build:
@@ -50,12 +57,11 @@ services:
     container_name: frontend_react
     ports:
       - "5173:5173" # Make sure Vite is set to run on this port
-    volumes:
-      - ./frontend_data:/usr/src/app
     environment:
       - VITE_HOST=0.0.0.0 # Ensure Vite binds to all network interfaces
     restart: unless-stopped
-
+    networks:
+      - default
 
   ia_negocios:
     image: ollama/ollama
@@ -63,10 +69,42 @@ services:
     ports:
       - "11434:11434"
     hostname: myollama
+    networks:
+      - default
+
+  ubuntu_telnet:
+    build: ubuntu_telnet
+    container_name: ubuntu_telnet
+    # ports:
+    #   - "23:23"
+    tty: true
+    stdin_open: true
+    networks:
+      - ubuntu_network  # Attach to the separate subnet
+    hostname: ubuntu_telnet
+    # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+
+  ubuntu_http:
+    build: ubuntu_http
+    container_name: ubuntu_http
+    tty: true
+    stdin_open: true
+    networks:
+      - ubuntu_network  # Attach to the separate subnet
+    hostname: ubuntu_http
+    # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+
+networks:
+  default:
+    driver: bridge
+  ubuntu_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.100.0/24"  # Custom subnet for Ubuntu containers
 
 volumes:
   chroma_data:
   mongo_data:
   backend_data:
   kali_data:
-
