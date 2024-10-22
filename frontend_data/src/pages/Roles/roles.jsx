@@ -9,7 +9,6 @@ import "./roles.css";
 import EditableTable from "../Components/EditableTable.jsx";
 
 function Roles() {
-
 	const rolesData = [
 		{
 			id: 1,
@@ -131,7 +130,6 @@ function Roles() {
 		},
 	];
 
-
 	const columns = [
 		{ key: "role", label: "ROL" },
 		{ key: "assignedPerson", label: "PERSONA ASIGNADA" },
@@ -146,7 +144,15 @@ function Roles() {
 		status: ["Cumplido", "En proceso", "Sin cumplir"],
 	};
 
-
+	const completedCount = rolesData.filter(
+		(item) => item.status === "Cumplido"
+	).length;
+	const inProgressCount = rolesData.filter(
+		(item) => item.status === "En proceso"
+	).length;
+	const notTrainedCount = rolesData.filter(
+		(item) => item.status === "Sin cumplir"
+	).length;
 
 	const stats = [
 		{
@@ -154,17 +160,17 @@ function Roles() {
 			icon: (
 				<CheckCircleOutlineRoundedIcon fontSize="14px" htmlColor="#17C964" />
 			),
-			value: 100,
+			value: completedCount,
 		},
 		{
 			title: "En proceso",
 			icon: <AccessTimeRoundedIcon fontSize="14px" htmlColor="#F5A524" />,
-			value: 100,
+			value: inProgressCount,
 		},
 		{
 			title: "Sin cumplir",
 			icon: <HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />,
-			value: 100,
+			value: notTrainedCount,
 		},
 	];
 

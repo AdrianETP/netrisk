@@ -30,6 +30,8 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import AddIcon from "@mui/icons-material/Add"; // Icono para agregar
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 
 import {
 	Info as InfoIcon,
@@ -38,6 +40,8 @@ import {
 
 import { Typography, Box, Grid } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+
 
 function EditableTable({
 	columns,
@@ -50,9 +54,48 @@ function EditableTable({
 	const [hoveredCell, setHoveredCell] = useState(null); // Estado para controlar la celda activa
 	const modal1 = useDisclosure();
 	const modal2 = useDisclosure();
+		const modal3 = useDisclosure();
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
 	const [isCopied, setIsCopied] = useState(false); // State to track if the value is copied
+
+	const stateStyles = {
+		Implementado: {
+			icon: (
+				<CheckCircleOutlineRoundedIcon fontSize="14px" htmlColor="#17C964" />
+			),
+		},
+		Cumplido: {
+			icon: (
+				<CheckCircleOutlineRoundedIcon fontSize="14px" htmlColor="#17C964" />
+			),
+		},
+		Completada: {
+			icon: (
+				<CheckCircleOutlineRoundedIcon fontSize="14px" htmlColor="#17C964" />
+			),
+		},
+		"En proceso": {
+			icon: <AccessTimeRoundedIcon fontSize="14px" htmlColor="#F5A524" />,
+		},
+		"En revisión": {
+			icon: <VisibilityOutlinedIcon fontSize="14px" htmlColor="#006FEE" />,
+		},
+		"Sin implementar": {
+			icon: <HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />,
+		},
+		"Sin cumplir": {
+			icon: <HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />,
+		},
+		Faltante: {
+			icon: <HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />,
+		},
+		Excluido: {
+			icon: (
+				<RemoveCircleOutlineRoundedIcon fontSize="14px" htmlColor="#E4E4E7" />
+			),
+		},
+	};
 
 	const handleSelectChange = (rowId, columnKey, newValue) => {
 		setData((prevData) =>
@@ -80,6 +123,11 @@ function EditableTable({
 
 	const handleOpenModal2 = () => {
 		modal2.onOpen();
+	};
+
+	const handleOpenModal3 = (item) => {
+		setSelectedItem(item);
+		modal3.onOpen();
 	};
 
 	const renderChip = (value) => {
@@ -161,7 +209,7 @@ function EditableTable({
 							size="sm"
 							variant="bordered"
 							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
-							onClick={() => handleModalOpen(item)}
+							onClick={() => handleOpenModal3(item)}
 						>
 							{item.pendingActions ? (
 								<>
@@ -212,14 +260,21 @@ function EditableTable({
 			const options = dropdownOptions[column.key] || [];
 			return (
 				<Select
-					selectedKey={item[column.key]}
-					placeholder={item[column.key]}
+					selectedKey={
+						(stateStyles[item[column.key]]?.icon || null) + item[column.key]
+					}
+					placeholder={item[column.key] || "Seleccionar"}
 					size="sm"
 					onChange={(key) => handleSelectChange(item.id, column.key, key)}
 					className="capitalize"
+					startContent={stateStyles[item[column.key]]?.icon || null}
 				>
 					{options.map((option) => (
-						<SelectItem key={option} value={option}>
+						<SelectItem
+							key={option}
+							value={option}
+							startContent={stateStyles[option]?.icon || null}
+						>
 							{option}
 						</SelectItem>
 					))}
@@ -323,7 +378,7 @@ function EditableTable({
 						th: "bg-[#404040] text-color-[#F6F6F6] font-semibold text-xs",
 						td: "font-normal text-xs max-w-[180px]",
 						base: `${baseHeight} overflow-auto`, // Corrected string concatenation
-						table: "min-h-[120px]",
+						table: "min-h-[120px] ",
 					}}
 				>
 					<TableHeader>
@@ -665,6 +720,149 @@ function EditableTable({
 								</ModalBody>
 
 								<ModalFooter></ModalFooter>
+							</>
+						)}
+					</ModalContent>
+				</Modal>
+				<Modal
+					isOpen={modal3.isOpen}
+					onClose={modal3.onClose}
+					onOpenChange={modal3.onOpenChange}
+					radius="lg"
+					classNames={{
+						base: "bg-[#202020] border-[#41434A] border-2", // Added z-index to the modal
+						backdrop: "",
+					}}
+				>
+					<ModalContent>
+						{(onClose) => (
+							<>
+								<ModalHeader className="flex flex-col gap-1 pb-0">
+									Rol: {selectedItem["role"]}
+								</ModalHeader>
+								<ModalBody>
+									{selectedItem && (
+										<div
+											style={{
+												padding: "16px",
+												borderRadius: "8px",
+												display: "flex",
+												flexDirection: "column",
+												gap: "16px",
+											}}
+										>
+											<Typography
+												variant="body2"
+												sx={{ color: "#bdbdbd" }}
+											></Typography>
+											<Grid container spacing={2}>
+												<Grid item xs={true} sm={true}>
+													<Box
+														sx={{
+															display: "flex",
+															alignItems: "center",
+															gap: "8px",
+															padding: "8px",
+															borderRadius: "10px",
+															borderColor: "#41434A",
+															borderWidth: "1px",
+														}}
+													>
+														<InfoIcon
+															style={{
+																fontSize: "20px",
+																color: "#f6f6f6",
+																marginInline: "8px",
+															}}
+														/>
+														<Box sx={{ flex: 1 }}>
+															<Typography
+																variant="body2"
+																sx={{
+																	fontWeight: "bold",
+																	color: "#e0e0e0",
+																	marginBottom: "4px",
+																}}
+															>
+																Persona asignada
+															</Typography>
+															<Typography
+																variant="body2"
+																sx={{ color: "#bdbdbd", margin: 0 }}
+															>
+																{selectedItem["assignedPerson"] || "N/a"}{" "}
+																{/* Adjust this key to match your data structure */}
+															</Typography>
+														</Box>
+													</Box>
+												</Grid>
+											</Grid>
+											{/* Show description field */}
+											<Box
+												sx={{
+													padding: "8px",
+													borderRadius: "8px",
+													boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+												}}
+											>
+												<Typography
+													variant="body2"
+													sx={{
+														fontWeight: "bold",
+														color: "#e0e0e0",
+														marginBottom: "4px",
+													}}
+												>
+													Acciones pendientes
+												</Typography>
+												<Textarea
+													clearable
+													bordered
+													fullWidth
+													placeholder="Agregar nota"
+													value={selectedItem["pendingActions"]}
+													onChange={(e) =>
+														setSelectedItem({
+															...selectedItem,
+															pendingActions: e.target.value,
+														})
+													}
+													rows={6}
+													style={{
+														fontSize: "14px",
+														borderColor: "#616161",
+													}}
+												/>
+											</Box>
+										</div>
+									)}
+								</ModalBody>
+
+								<ModalFooter>
+									<Button
+										fullWidth
+										color="default"
+										variant="light"
+										onPress={modal3.onClose}
+									>
+										Cancelar
+									</Button>
+									<Button
+										fullWidth
+										variant="bordered"
+										className="text-[#0DD4CE] border-[#0DD4CE] border-2 hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+										onPress={() => {
+											setData((prevData) =>
+												prevData.map((item) =>
+													item.id === selectedItem.id ? selectedItem : item
+												)
+											);
+											onClose(); // Close the modal after saving
+										}}
+									>
+										<b>Guardar</b>
+									</Button>
+								</ModalFooter>
 							</>
 						)}
 					</ModalContent>
