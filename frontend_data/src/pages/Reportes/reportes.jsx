@@ -159,7 +159,7 @@ function Reportes() {
 				/>
 			</div>
 			<div className="flex flex-row px-6 gap-4 flex-wrap">
-				{(filteredReports.length > 0 ? filteredReports : reportsData).map(
+				{(filteredReports.length > 0 ? filteredReports : reportsData).map( // TODO: fix date range filter
 					(report, index) => (
 						<ReporteCard
 							key={index}
