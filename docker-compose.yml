@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   flask:
@@ -6,26 +6,27 @@ services:
       context: ./backend_data
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend_data:/app
-    depends_on: 
+    depends_on:
       - chromadb
-    hostname: mflask
+    hostname: myflask
+    networks:
+      - default
 
   mongo:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db  # Persist MongoDB data
+      - mongo_data:/data/db # Persist MongoDB data
     hostname: mymongo
-
+    networks:
+      - default
   chromadb:
     image: chromadb/chroma:latest
     ports:
       - "8000:8000"
     environment:
-      CHROMA_DB_HOST: 0.0.0.0  # Allow external access
+      CHROMA_DB_HOST: 0.0.0.0 # Allow external access
       CHROMA_DB_PORT: 8000
     volumes:
       - chroma_data:/chroma/chroma
@@ -35,27 +36,33 @@ services:
       timeout: 10s
       retries: 5
     hostname: mychroma
-
-  kali:
-    image: kalilinux/kali-rolling
-    container_name: kali
+    networks:
+      - default
+  pentesting_data:
+    build: pentesting_data
+    container_name: pentester
+    ports:
+      - "5001:5001"
     tty: true
-    stdin_open: true
-    volumes:
-      - kali_data:/root  # Persist data in the /root directory      
-
+    networks:
+      - ubuntu_network
+    cap_add:
+      - NET_RAW # Allow raw socket access
+  kali_tester:
+    image: kalilinux/kali-rolling
+    tty: true
+    container_name: kali
   react-frontend:
     build:
       context: ./frontend_data # Make sure this path is correct
     container_name: frontend_react
     ports:
       - "5173:5173" # Make sure Vite is set to run on this port
-    volumes:
-      - ./frontend_data:/usr/src/app
     environment:
       - VITE_HOST=0.0.0.0 # Ensure Vite binds to all network interfaces
     restart: unless-stopped
-
+    networks:
+      - default
 
   ia_negocios:
     image: ollama/ollama
@@ -63,10 +70,42 @@ services:
     ports:
       - "11434:11434"
     hostname: myollama
+    networks:
+      - default
+
+  ubuntu_telnet:
+    build: ubuntu_telnet
+    container_name: ubuntu_telnet
+    # ports:
+    #   - "23:23"
+    tty: true
+    stdin_open: true
+    networks:
+      - ubuntu_network # Attach to the separate subnet
+    hostname: ubuntu_telnet
+    # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+
+  ubuntu_http:
+    build: ubuntu_http
+    container_name: ubuntu_http
+    tty: true
+    stdin_open: true
+    networks:
+      - ubuntu_network # Attach to the separate subnet
+    hostname: ubuntu_http
+    # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+
+networks:
+  default:
+    driver: bridge
+  ubuntu_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.100.0/24" # Custom subnet for Ubuntu containers
 
 volumes:
   chroma_data:
   mongo_data:
   backend_data:
   kali_data:
-
