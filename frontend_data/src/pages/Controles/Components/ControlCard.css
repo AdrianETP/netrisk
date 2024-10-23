@@ -1,0 +1,27 @@
+.control-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #373737;
+    border: solid 1px #41434A;
+    border-radius: 11px;
+    padding: 2%;
+    width: 42%;
+    height: 35vh;
+}
+
+.control-card-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.control-card-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+}

@@ -1,0 +1,65 @@
+.loginBackground {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: url("LoginBackground.png");
+}
+
+.glass-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    backdrop-filter: blur(18px) saturate(200%);
+    -webkit-backdrop-filter: blur(18px) saturate(200%);
+    background-color: rgba(0, 0, 0, 0.33);
+    border-radius: 12px;
+    border: 1px solid rgba(209, 213, 219, 0.3);
+    padding: 50px;
+    width: 23rem;
+    height: fit-content;
+}
+
+.input-spacing {
+    margin-bottom: 20px; /* Adjust the value as needed */
+}
+
+
+.glass-card button {
+    margin-top: 16px; /* Space above the button */
+}
+
+.logo-container-login {
+	position: relative;
+	width: 100px;
+	height: auto;
+}
+
+.login-button-container {
+    display: flex;
+    justify-content: center;
+    height: 40px;
+    width: 100%;
+    
+}
+
+.login-button {
+    font-weight: bold !important;
+    color: teal !important;
+    background-color: azure !important;
+    box-shadow: none;
+    border: none; /* Default border */
+    transition: background-color 0.3s ease; /* Smooth transition for border color */
+    width: 80%;
+    outline: none;
+}
+
+.login-button:hover {
+    background-color: lightgrey !important;
+}
+
+.login-button:focus {
+    outline: none;
+}

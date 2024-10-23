@@ -1,0 +1,9 @@
+.navbar-container {
+    display: flex;
+    justify-content: space-between; /* Space between title and button */
+    align-items: flex-start; /* Vertically centers items */
+    padding: 16px; /* Adjusts spacing around the elements */
+        width: 77vw; /* Ensure it takes full width of the parent */
+
+
+}

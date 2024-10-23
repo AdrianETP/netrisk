@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Inter', sans-serif; /* Apply Inter font globally */
+    margin: 0; /* Optional: remove default margin */
+    padding: 0; /* Optional: remove default padding */
+    background-color: #202020 ;
+}
+
+/* You can also apply the font to specific elements if needed */
+h1, h2, h3, p {
+    font-family: 'Inter', sans-serif; /* Ensure these elements use Inter */
+}
+

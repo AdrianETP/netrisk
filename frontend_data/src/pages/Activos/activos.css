@@ -1,0 +1,30 @@
+.activos-top {
+    display: flex;
+    flex-direction: row;
+}
+
+.boton-escaneo-red {
+    margin-bottom: 20px;
+    width: 50%;
+    padding-left: 10px;
+}
+
+.circulos-activos {
+    width: 50%;
+    align-items: flex-start;
+}
+
+.diagrama-red {
+    width: auto;
+    height: 100px;
+    margin: auto;
+}
+
+.tabla-activos {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;     /* Center vertically */
+    width: 100%;
+    padding-left: 25px;
+    height: 38vh;
+}
