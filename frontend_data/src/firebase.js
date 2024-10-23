@@ -33,3 +33,4 @@ const db = getFirestore(app); // Initialize Firestore and assign it to db
 
 export { auth, db };
 
+
