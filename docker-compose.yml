@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   flask:
@@ -6,7 +6,7 @@ services:
       context: ./backend_data
     ports:
       - "5000:5000"
-    depends_on: 
+    depends_on:
       - chromadb
     hostname: myflask
     networks:
@@ -17,17 +17,16 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db  # Persist MongoDB data
+      - mongo_data:/data/db # Persist MongoDB data
     hostname: mymongo
     networks:
       - default
-
   chromadb:
     image: chromadb/chroma:latest
     ports:
       - "8000:8000"
     environment:
-      CHROMA_DB_HOST: 0.0.0.0  # Allow external access
+      CHROMA_DB_HOST: 0.0.0.0 # Allow external access
       CHROMA_DB_PORT: 8000
     volumes:
       - chroma_data:/chroma/chroma
@@ -39,18 +38,20 @@ services:
     hostname: mychroma
     networks:
       - default
-
-  kali:
-    image: kalilinux/kali-rolling
-    container_name: kali
+  pentesting_data:
+    build: pentesting_data
+    container_name: pentester
+    ports:
+      - "5001:5001"
     tty: true
-    stdin_open: true
-    volumes:
-      - kali_data:/root  # Persist data in the /root directory
     networks:
-      - default
-      - ubuntu_network  # Move Kali to the separate subnet
-
+      - ubuntu_network
+    cap_add:
+      - NET_RAW # Allow raw socket access
+  kali_tester:
+    image: kalilinux/kali-rolling
+    tty: true
+    container_name: kali
   react-frontend:
     build:
       context: ./frontend_data # Make sure this path is correct
@@ -80,7 +81,7 @@ services:
     tty: true
     stdin_open: true
     networks:
-      - ubuntu_network  # Attach to the separate subnet
+      - ubuntu_network # Attach to the separate subnet
     hostname: ubuntu_telnet
     # command: ["sleep", "infinity"]  # Keeps the container running for interaction
 
@@ -90,7 +91,7 @@ services:
     tty: true
     stdin_open: true
     networks:
-      - ubuntu_network  # Attach to the separate subnet
+      - ubuntu_network # Attach to the separate subnet
     hostname: ubuntu_http
     # command: ["sleep", "infinity"]  # Keeps the container running for interaction
 
@@ -101,7 +102,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: "192.168.100.0/24"  # Custom subnet for Ubuntu containers
+        - subnet: "192.168.100.0/24" # Custom subnet for Ubuntu containers
 
 volumes:
   chroma_data:
