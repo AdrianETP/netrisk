@@ -1,0 +1,21 @@
+.reportes-container-full {
+    min-height: 100vh;
+    background-color: #202020; 
+    padding-bottom: 3%;
+}
+.recomendacion-controles-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 40px;
+    margin-bottom: 15px;
+}
+
+.reportes-titulo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+}
