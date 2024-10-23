@@ -45,6 +45,13 @@ def askaifromrisk():
     prompt = data['prompt']
     return ask_riesgo(prompt)
 
+# TODO endpoint para obtener los controles del NIST 800-53
+
+
+
+# TODO endpoint para realizar escaneo de la red para descubrir activos
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

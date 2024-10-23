@@ -38,6 +38,7 @@ def upload():
         client = chromadb.HttpClient(host="chromadb", port=8000)
         collectiondocs = client.get_or_create_collection(name="docs")
         collectionriesgos = client.get_or_create_collection(name="riesgos")
+        collectioncases = client.get_or_create_collection(name="cases")
 
     except Exception as e:
         logging.error(f"Failed to connect to ChromaDB: {e}")
@@ -74,7 +75,7 @@ def upload():
             response = ollamaClient.embeddings(
                 model="mxbai-embed-large", prompt=d)
             embedding = response["embedding"]
-            collectiondocs.add(
+            collectioncases.add(
                 ids=["docs_"+str(i)],
                 embeddings=[embedding],
                 documents=[d]
