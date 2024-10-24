@@ -45,8 +45,10 @@ services:
     ports:
       - "5001:5001"
     tty: true
+    hostname: mypentester
     networks:
       - ubuntu_network
+      - default
     cap_add:
       - NET_RAW # Allow raw socket access
   kali_tester:
