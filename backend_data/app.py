@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
+from db_calls import get_activos, get_vul_tec_by_activo, get_vul_org
 import requests
 
 app = Flask(__name__)
@@ -45,11 +46,20 @@ def askaifromrisk():
     prompt = data['prompt']
     return ask_riesgo(prompt)
 
-# TODO endpoint para obtener los controles del NIST 800-53
+# Endpoint para obtener activos
+@app.route('/api/activos', methods=['GET'])
+def api_get_activos():
+    return get_activos()
 
+# Endpoint para obtener vulnerabilidades de activos
+@app.route('/api/vul-tec/<activo_id>', methods=['GET'])
+def api_get_vul_tec_by_activo(activo_id):
+    return get_vul_tec_by_activo(activo_id)
 
-
-# TODO endpoint para realizar escaneo de la red para descubrir activos
+# Endpoint para obtener vulnerabilidades organizacionales
+@app.route('/api/vul-org', methods=['GET'])
+def api_get_vul_org():
+    return get_vul_org()
 
 
 

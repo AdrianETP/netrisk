@@ -10,6 +10,9 @@ services:
       - ./backend_data:/app
     depends_on: 
       - chromadb
+      - mongo  # Añadir dependencia a MongoDB
+    environment:
+      - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
     hostname: mflask
 
   mongo:
