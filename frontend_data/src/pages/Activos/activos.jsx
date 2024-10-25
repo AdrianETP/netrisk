@@ -3,8 +3,27 @@ import EditableTable from "../Components/EditableTable.jsx";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import { Button } from "@nextui-org/button";
 import "./activos.css";
+import { get } from "../../ApiRequests.js";
+import { useState, useEffect} from "react";
+
 
 function Activos() {
+
+	const [activos, setActivos] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		get("api/activos")
+			.then((result) => {
+				setActivos(result);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
 	const columns = [
 		{ key: "idTabla", label: "ID" },
 		{ key: "ip", label: "IP" },

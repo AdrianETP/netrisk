@@ -20,6 +20,7 @@
     "@nextui-org/system": "^2.2.6",
     "@nextui-org/theme": "^2.2.11",
     "@tremor/react": "^3.18.3",
+    "axios": "^1.7.7",
     "firebase": "^10.14.1",
     "framer-motion": "^11.11.8",
     "jspdf": "^2.5.2",
