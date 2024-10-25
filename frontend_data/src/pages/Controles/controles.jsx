@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import SmallStatsCard from "./Components/SmallStatsCard";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";

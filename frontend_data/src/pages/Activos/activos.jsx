@@ -1,10 +1,8 @@
-import React from "react";
 import ProgressCircle from "../Components/ProgressCircle.jsx";
 import EditableTable from "../Components/EditableTable.jsx";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import { Button } from "@nextui-org/button";
 import "./activos.css";
-import placeholder from "./placeholder-diagrama-red.png";
 
 function Activos() {
 	const columns = [

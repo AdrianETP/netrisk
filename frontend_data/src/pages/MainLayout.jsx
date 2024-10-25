@@ -25,7 +25,7 @@ function MainLayout() {
 			case "/controles":
 				return "Controles de seguridad";
 			case "/roles":
-				return "Roles";
+				return "Roles de la organización";
 			case "/personas":
 				return "Personas";
 			case "/reportes":

@@ -1,0 +1,8 @@
+.card-background-dashboard {
+    width: fit-content;
+    height: fit-content;
+    padding: 2%;
+    background-color: #292929;
+    border-radius: 11px;
+    border: solid 1px #4E4E4E;
+}
