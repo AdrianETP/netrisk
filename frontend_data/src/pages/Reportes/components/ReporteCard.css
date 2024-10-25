@@ -1,0 +1,10 @@
+.reporte-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: #373737;
+    border: solid 1px #41434A;
+    border-radius: 11px;
+    padding: 2%;
+    width: 32%;
+    height: 35vh;
+}

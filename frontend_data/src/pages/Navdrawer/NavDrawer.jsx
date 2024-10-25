@@ -145,6 +145,8 @@ function NavDrawer() {
 			sx={{
 				width: "21vw",
 				flexShrink: 0,
+				zIndex: 1, // Set z-index for the drawer
+
 				"& .MuiDrawer-paper": {
 					width: "21vw",
 					bgcolor: "transparent",
