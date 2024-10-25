@@ -13,6 +13,17 @@ import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded
 
 function Soporte() {
 	const [inputValue, setInputValue] = useState("");
+	const openEmailPrompt = () => {
+		const email = "support@netrisk.com"; // Replace with the recipient's email
+		const subject = "Ticket de soporte al cliente"; // Subject of the email
+		const body = ""; // Body content
+
+		const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+			subject
+		)}&body=${encodeURIComponent(body)}`;
+
+		window.location.href = mailtoLink; // Opens the default email client
+	};
 
 	const faqs = [
 		{
@@ -60,12 +71,22 @@ function Soporte() {
 	return (
 		<div className="controles-container-full pb-6">
 			<div className="flex flex-row p-6 gap-4">
-				<Button endContent={<EmailRoundedIcon />} className="px-16">
+				<Button
+					onClick={openEmailPrompt}
+					endContent={<EmailRoundedIcon />}
+					className="px-16"
+				>
 					Contáctanos
 				</Button>
-				<Button endContent={<ImportContactsRoundedIcon />} className="px-14">
-					Manual de usuario
-				</Button>
+				<a
+					href="https://docs.google.com/document/d/1_GnvNQIXfumduyPSykm82QUAD0GqPy4loqWOj_DV7KI/edit?usp=sharing"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<Button endContent={<ImportContactsRoundedIcon />} className="px-14">
+						Manual de usuario
+					</Button>
+				</a>
 			</div>
 			<div className="recomendacion-controles-container">
 				<div className="recomendacion-controles-titulo">

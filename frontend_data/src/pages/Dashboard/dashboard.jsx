@@ -5,31 +5,38 @@ import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 
-
 function Dashboard() {
-const desktopOS = [
-	{
-		label: "Windows",
-		value: 72.72,
-	},
-	{
-		label: "OS X",
-		value: 16.38,
-	},
-	{
-		label: "Linux",
-		value: 3.83,
-	},
-	{
-		label: "Chrome OS",
-		value: 2.42,
-	},
-	{
-		label: "Other",
-		value: 4.65,
-	},
+	// Define a custom color palette
+	const customPalette = [
+		"#0DD4CE",
+		"#F46197",
+		"#ECFFB0",
+		"#54577C",
+		"#4A7B9D",
 	];
-	
+
+	const desktopOS = [
+		{
+			label: "Windows",
+			value: 72.72,
+		},
+		{
+			label: "OS X",
+			value: 16.38,
+		},
+		{
+			label: "Linux",
+			value: 3.83,
+		},
+		{
+			label: "Chrome OS",
+			value: 2.42,
+		},
+		{
+			label: "Other",
+			value: 4.65,
+		},
+	];
 
 	return (
 		<div className="flex flex-row flex-wrap p-6 pt-0 items-center gap-y-4 gap-x-6">
@@ -62,7 +69,10 @@ const desktopOS = [
 				<PieChart
 					series={[
 						{
-							data: desktopOS,
+							data: desktopOS.map((item, index) => ({
+								...item,
+								color: customPalette[index % customPalette.length], // Assign colors cyclically from the palette
+							})),
 							highlightScope: { fade: "global", highlight: "item" },
 							faded: { innerRadius: 30, additionalRadius: -30, color: "gray" },
 						},
@@ -95,6 +105,7 @@ const desktopOS = [
 					series={[
 						{
 							data: [2, 5.5, 2, 8.5, 1.5, 5],
+							color: "#F46197",
 						},
 					]}
 					width={460}
