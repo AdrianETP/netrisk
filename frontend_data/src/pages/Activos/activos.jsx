@@ -17,6 +17,7 @@ function Activos() {
 			.then((result) => {
 				setActivos(result);
 				setIsLoading(false);
+				console.log(result);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
