@@ -23,18 +23,51 @@ def get_activos():
     except Exception as e:
         logging.error(f"Error retrieving activos: {e}")
         return jsonify({"status": 500, "error": str(e)})
-
-# Función para obtener vulnerabilidades técnicas asociadas a un activo
-def get_vul_tec_by_activo(activo_id):
+    
+# Función para obtener auditorias    
+def get_auditorias():
     try:
-        collection = db['vul-tec']
-        vul_tecs = list(collection.find({"id-activo": activo_id}))
-        vul_tecs_serializadas = [serialize_document(vul_tec) for vul_tec in vul_tecs]
-        return jsonify({"status": 200, "data": vul_tecs_serializadas})
+        collection = db['auditorias']
+        auditorias = list(collection.find({}))
+        auditorias_serializados = [serialize_document(auditoria) for auditoria in auditorias]
+        return jsonify({"status": 200, "data": auditorias_serializados})
     except Exception as e:
-        logging.error(f"Error retrieving vul-tec for activo {activo_id}: {e}")
+        logging.error(f"Error retrieving auditorias: {e}")
         return jsonify({"status": 500, "error": str(e)})
 
+# Función para obtener controles
+def get_controles():
+    try:
+        collection = db['controles']
+        controles = list(collection.find({}))
+        controles_serializados = [serialize_document(control) for control in controles]
+        return jsonify({"status": 200, "data": controles_serializados})
+    except Exception as e:
+        logging.error(f"Error retrieving controles: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para obtener personas
+def get_personas():
+    try:
+        collection = db['personas']
+        personas = list(collection.find({}))
+        personas_serializados = [serialize_document(persona) for persona in personas]
+        return jsonify({"status": 200, "data": personas_serializados})
+    except Exception as e:
+        logging.error(f"Error retrieving personas: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para obtener roles
+def get_roles():
+    try:
+        collection = db['roles']
+        roles = list(collection.find({}))
+        roles_serializados = [serialize_document(rol) for rol in roles]
+        return jsonify({"status": 200, "data": roles_serializados})
+    except Exception as e:
+        logging.error(f"Error retrieving : {e}")
+        return jsonify({"status": 500, "error": str(e)})
+    
 # Función para obtener vulnerabilidades organizacionales
 def get_vul_org():
     try:
@@ -43,5 +76,16 @@ def get_vul_org():
         vul_orgs_serializadas = [serialize_document(vul_org) for vul_org in vul_orgs]
         return jsonify({"status": 200, "data": vul_orgs_serializadas})
     except Exception as e:
-        logging.error(f"Error retrieving vul-org: {e}")
+        logging.error(f"Error retrieving organizational vulnerabilities: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+    
+# Función para obtener vulnerabilidades técnicas
+def get_vul_tec():
+    try:
+        collection = db['vul-tec']
+        vul_tecs = list(collection.find({}))
+        vul_tecs_serializadas = [serialize_document(vul_tec) for vul_tec in vul_tecs]
+        return jsonify({"status": 200, "data": vul_tecs_serializadas})
+    except Exception as e:
+        logging.error(f"Error retrieving tecnical vulnerabilities: {e}")
         return jsonify({"status": 500, "error": str(e)})
