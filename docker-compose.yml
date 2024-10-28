@@ -8,9 +8,14 @@ services:
       - "5000:5000"
     depends_on:
       - chromadb
+      - mongo  # Añadir dependencia a MongoDB
     hostname: myflask
     networks:
       - default
+    volumes:
+      - ./backend_data:/app
+    environment:
+      - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
 
   mongo:
     image: mongo:latest
@@ -41,7 +46,6 @@ services:
   pentesting_data:
     build: pentesting_data
     container_name: pentester
-    hostname: pentester
     ports:
       - "5001:5001"
     tty: true

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec
 import requests
 
 app = Flask(__name__)
@@ -44,6 +45,42 @@ def askaifromrisk():
     data = request.get_json()
     prompt = data['prompt']
     return ask_riesgo(prompt)
+
+# Endpoint para obtener activos
+@app.route('/api/activos', methods=['GET'])
+def api_get_activos():
+    return get_activos()
+
+# Endpoint para obtener auditorias
+@app.route('/api/auditorias', methods=['GET'])
+def api_get_auditorias():
+    return get_auditorias()
+
+# Endpoint para obtener controles
+@app.route('/api/controles', methods=['GET'])
+def api_get_controles():
+    return get_controles()
+
+# Endpoint para obtener personas
+@app.route('/api/personas', methods=['GET'])
+def api_get_personas():
+    return get_personas()
+
+# Endpoint para obtener roles
+@app.route('/api/roles', methods=['GET'])
+def api_get_roles():
+    return get_roles()
+
+# Endpoint para obtener vulnerabilidades organizacionales
+@app.route('/api/vul-org', methods=['GET'])
+def api_get_vul_org():
+    return get_vul_org()
+
+# Endpoint para obtener vulnerabilidades de activos
+@app.route('/api/vul-tec', methods=['GET'])
+def api_get_vul_tec():
+    return get_vul_tec()
+
 
 
 if __name__ == '__main__':
