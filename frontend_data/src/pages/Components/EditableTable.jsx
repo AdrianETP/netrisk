@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Table,
 	TableHeader,
@@ -54,10 +54,14 @@ function EditableTable({
 	const [hoveredCell, setHoveredCell] = useState(null); // Estado para controlar la celda activa
 	const modal1 = useDisclosure();
 	const modal2 = useDisclosure();
-		const modal3 = useDisclosure();
+	const modal3 = useDisclosure();
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
 	const [isCopied, setIsCopied] = useState(false); // State to track if the value is copied
+
+	useEffect(() => {
+		setData(initialData);
+	}, [initialData]);
 
 	const stateStyles = {
 		Implementado: {
@@ -199,88 +203,96 @@ function EditableTable({
 			return renderChip(item[column.key]);
 		}
 
-		if (isEditable) {
-			// Check if the column should render a modal button instead of a dropdown
-			if (column.key === "pendingActions") {
-				return (
-					<div style={{ display: "flex", alignItems: "center" }}>
-						<Button
-							fullWidth
-							size="sm"
-							variant="bordered"
-							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
-							onClick={() => handleOpenModal3(item)}
-						>
-							{item.pendingActions ? (
-								<>
-									Ver
-									<VisibilityRoundedIcon
-										style={{ height: "auto", width: "15px" }}
-									/>
-								</>
-							) : (
-								<>
-									Agregar
-									<AddIcon style={{}} />
-								</>
-							)}
-						</Button>
-					</div>
-				);
-			}
-			if (column.key === "desc") {
-				// Replace with the actual key for the column
-				return (
-					<div style={{ display: "flex", alignItems: "center" }}>
-						<Button
-							fullWidth
-							size="sm"
-							variant="bordered"
-							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
-							onClick={() => handleModalOpen(item)}
-						>
-							{item.desc ? (
-								<>
-									Ver
-									<VisibilityRoundedIcon
-										style={{ height: "auto", width: "15px" }}
-									/>
-								</>
-							) : (
-								<>
-									Agregar
-									<AddIcon style={{}} />
-								</>
-							)}
-						</Button>
-					</div>
-				);
-			}
-
-			const options = dropdownOptions[column.key] || [];
+		if (column.key == "estado") {
 			return (
-				<Select
-					selectedKey={
-						(stateStyles[item[column.key]]?.icon || null) + item[column.key]
-					}
-					placeholder={item[column.key] || "Seleccionar"}
-					size="sm"
-					onChange={(key) => handleSelectChange(item.id, column.key, key)}
-					className="capitalize"
-					startContent={stateStyles[item[column.key]]?.icon || null}
-				>
-					{options.map((option) => (
-						<SelectItem
-							key={option}
-							value={option}
-							startContent={stateStyles[option]?.icon || null}
-						>
-							{option}
-						</SelectItem>
-					))}
-				</Select>
+				<div className="flex flex-row items-center gap-2">
+					{stateStyles[item[column.key]]?.icon}
+					<p>{item[column.key]}</p>
+				</div>
 			);
 		}
+			if (isEditable) {
+				// Check if the column should render a modal button instead of a dropdown
+				if (column.key === "pendingActions") {
+					return (
+						<div style={{ display: "flex", alignItems: "center" }}>
+							<Button
+								fullWidth
+								size="sm"
+								variant="bordered"
+								className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+								onClick={() => handleOpenModal3(item)}
+							>
+								{item.pendingActions ? (
+									<>
+										Ver
+										<VisibilityRoundedIcon
+											style={{ height: "auto", width: "15px" }}
+										/>
+									</>
+								) : (
+									<>
+										Agregar
+										<AddIcon style={{}} />
+									</>
+								)}
+							</Button>
+						</div>
+					);
+				}
+				if (column.key === "desc") {
+					// Replace with the actual key for the column
+					return (
+						<div style={{ display: "flex", alignItems: "center" }}>
+							<Button
+								fullWidth
+								size="sm"
+								variant="bordered"
+								className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+								onClick={() => handleModalOpen(item)}
+							>
+								{item.desc ? (
+									<>
+										Ver
+										<VisibilityRoundedIcon
+											style={{ height: "auto", width: "15px" }}
+										/>
+									</>
+								) : (
+									<>
+										Agregar
+										<AddIcon style={{}} />
+									</>
+								)}
+							</Button>
+						</div>
+					);
+				}
+
+				const options = dropdownOptions[column.key] || [];
+				return (
+					<Select
+						selectedKey={
+							(stateStyles[item[column.key]]?.icon || null) + item[column.key]
+						}
+						placeholder={item[column.key] || "Seleccionar"}
+						size="sm"
+						onChange={(key) => handleSelectChange(item.id, column.key, key)}
+						className="capitalize"
+						startContent={stateStyles[item[column.key]]?.icon || null}
+					>
+						{options.map((option) => (
+							<SelectItem
+								key={option}
+								value={option}
+								startContent={stateStyles[option]?.icon || null}
+							>
+								{option}
+							</SelectItem>
+						))}
+					</Select>
+				);
+			}
 
 		return (
 			<div

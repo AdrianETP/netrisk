@@ -23,7 +23,7 @@ frontend_data/*.ntvs*
 frontend_data/*.njsproj
 frontend_data/*.sln
 frontend_data/*.sw?
-
+.env
 
 backend_data/venv
 mongodb_data
