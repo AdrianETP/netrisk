@@ -114,9 +114,7 @@ function Activos() {
 						</Button>
 					</div>
 				</div>
-				<div className="diagrama-red">
-					{/*<img src={placeholder}></img>*/}
-				</div>
+				<div className="diagrama-red">{/*<img src={placeholder}></img>*/}</div>
 			</div>
 			<div className="tabla-activos">
 				<EditableTable
