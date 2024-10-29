@@ -1,5 +1,5 @@
 # Dockerfile for React app
-FROM node:latest
+FROM node:20
 
 WORKDIR /usr/src/app
 

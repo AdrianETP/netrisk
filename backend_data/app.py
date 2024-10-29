@@ -2,8 +2,11 @@ from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
 from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec
 import requests
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS en toda la app
 
 
 @app.route('/')
