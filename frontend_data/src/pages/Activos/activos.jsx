@@ -18,6 +18,8 @@ function Activos() {
 				setActivos(result);
 				setIsLoading(false);
 				console.log(result);
+				console.log(activos);
+				console.log(initialData);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
@@ -119,7 +121,7 @@ function Activos() {
 			<div className="tabla-activos">
 				<EditableTable
 					columns={columns}
-					initialData={initialData}
+					initialData={activos.length ? activos : initialData}
 					editableColumns={editableColumns}
 					dropdownOptions={dropdownOptions}
 				/>
