@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc
 import requests
 
 app = Flask(__name__)
@@ -81,6 +81,14 @@ def api_get_vul_org():
 def api_get_vul_tec():
     return get_vul_tec()
 
+# Endpoint para actualizar la descripción de un activo
+@app.route('/api/activos/<int:activo_id>/desc', methods=['PUT'])
+def api_update_activo_desc(activo_id):
+    data = request.get_json()
+    nueva_desc = data.get("desc")
+    if nueva_desc is None:
+        return jsonify({"status": 400, "error": "No se proporcionó una nueva descripción"}), 400
+    return update_activo_desc(activo_id, nueva_desc)
 
 
 if __name__ == '__main__':

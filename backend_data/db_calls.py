@@ -89,3 +89,19 @@ def get_vul_tec():
     except Exception as e:
         logging.error(f"Error retrieving tecnical vulnerabilities: {e}")
         return jsonify({"status": 500, "error": str(e)})
+    
+# Función para actualizar la descripción de un activo
+def update_activo_desc(activo_id, nueva_desc):
+    try:
+        collection = db['activos']
+        result = collection.update_one(
+            {"id": activo_id},  # Busca el activo por el campo `id`
+            {"$set": {"desc": nueva_desc}}  # Actualiza el campo `desc`
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Activo no encontrado"}), 404
+
+        return jsonify({"status": 200, "message": "Descripción actualizada exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
