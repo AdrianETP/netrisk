@@ -8,8 +8,42 @@ import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import { get } from "../../ApiRequests.js";
+import { useEffect } from "react";
+
 
 function Vulnerabilidades() {
+const [initialDataTable1, setInitialDataTable1] = useState([]);
+const [isLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+	get("api/vul-tec")
+		.then((result) => {
+			setInitialDataTable1(result.data);
+			setIsLoading(false);
+			console.log(result.data);
+		})
+		.catch((error) => {
+			console.error("Ocurrió un error:", error);
+			setIsLoading(false);
+		});
+}, []);
+	
+const [initialDataTable2, setInitialDataTable2] = useState([]);
+
+	useEffect(() => {
+		get("api/vul-org")
+			.then((result) => {
+				setInitialDataTable2(result.data);
+				setIsLoading(false);
+				console.log(result.data);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
 	const [selectedTable, setSelectedTable] = useState("table1");
 
 	const stats = [
@@ -42,36 +76,6 @@ function Vulnerabilidades() {
 		{ key: "impact", label: "IMPACTO" },
 	];
 
-	const initialDataTable1 = [
-		{
-			id: "router1",
-			vulnerability: "Puerto 23 (Telnet) Abierto",
-			threat: "Acceso no autorizado",
-			impact: "Crítico",
-			potentialLoss: "$10,000 - $50,000",
-		},
-		{
-			id: "pc2",
-			vulnerability: "CVE-2020-3452 Cisco ASA",
-			threat: "Ejecución remota de código",
-			impact: "Alto",
-			potentialLoss: "$20,000 - $75,000",
-		},
-		{
-			id: "server3",
-			vulnerability: "CVE-2019-0708 BlueKeep",
-			threat: "Acceso remoto no autorizado",
-			impact: "Bajo",
-			potentialLoss: "$5,000 - $20,000",
-		},
-		{
-			id: "smartphone4",
-			vulnerability: "CVE-2021-1879 WebKit",
-			threat: "Ejecución de código malicioso",
-			impact: "Moderado",
-			potentialLoss: "$15,000 - $30,000",
-		},
-	];
 
 	const columnsTable2 = [
 		{ key: "email", label: "CORREO" },
@@ -80,65 +84,6 @@ function Vulnerabilidades() {
 		{ key: "potentialLoss", label: "PÉRDIDA POTENCIAL" },
 		{ key: "impact", label: "IMPACTO" },
 	];
-
-	const initialDataTable2 = [
-		{
-			id: 3,
-			email: "johndoe@example.com",
-			vulnerability: "Última capacitación hace 7 meses",
-			threat: "Acceso no autorizado",
-			potentialLoss: "$1,000 - $5,000",
-			impact: "Crítico",
-		},
-		{
-			id: 4,
-			email: "janedoe@example.com",
-			vulnerability:
-				"Incumplimiento del rol 'Control de Acceso' del NIST",
-			threat: "Phishing",
-			potentialLoss: "$500 - $3,000",
-			impact: "Alto",
-		},
-		{
-			id: 5,
-			email: "alicesmith@example.com",
-			vulnerability: "Última capacitación hace 7 meses",
-			threat: "Malware",
-			potentialLoss: "$2,000 - $7,000",
-			impact: "Moderado",
-		},
-		{
-			id: 6,
-			email: "N/A",
-
-			vulnerability:
-				"No se ha cumplido con el rol de 'Senior Agency Official' del NIST",
-			threat: "Robo de identidad",
-			potentialLoss: "$1,500 - $4,500",
-			impact: "Moderado",
-		},
-		{
-			id: 7,
-			email: "emilydavis@example.com",
-			vulnerability:
-				"No se ha cumplido con el rol de 'Respuestas a Incidentes' del NIST",
-			threat: "Denegación de servicio",
-			potentialLoss: "$300 - $2,000",
-			impact: "Bajo",
-		},
-		{
-			id: 8,
-			email: "N/A",
-			vulnerability:
-				"No se ha cumplido con el rol de 'Auditoría y Responsabilidad' del NIST",
-			threat: "Phishing",
-			potentialLoss: "$1,000 - $6,000",
-			impact: "Bajo",
-		},
-	];
-
-
-
 
 	const editableColumns = [""];
 

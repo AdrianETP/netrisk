@@ -15,11 +15,9 @@ function Activos() {
 	useEffect(() => {
 		get("api/activos")
 			.then((result) => {
-				setActivos(result);
+				setActivos(result.data);
 				setIsLoading(false);
-				console.log(result);
-				console.log(activos);
-				console.log(initialData);
+				console.log(result.data);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
@@ -121,7 +119,7 @@ function Activos() {
 			<div className="tabla-activos">
 				<EditableTable
 					columns={columns}
-					initialData={activos.length ? activos : initialData}
+					initialData={activos}
 					editableColumns={editableColumns}
 					dropdownOptions={dropdownOptions}
 				/>
