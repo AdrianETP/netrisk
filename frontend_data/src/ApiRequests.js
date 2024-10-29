@@ -67,7 +67,8 @@ export default MyComponent;
 
 // const API_URL = "http://dreamlab-api.azurewebsites.net/";
 // export const API_URL = "http://localhost:3000/";
-export const API_URL = import.meta.env.VITE_API_URL;
+//export const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = "http://localhost:5000/";
 
 async function apiRequest(
 	method,
@@ -108,7 +109,7 @@ async function apiRequest(
  * @param {function} errorActions función que se ejecutará si la petición falla
  * @returns la respuesta de la petición
  */
-export function get(url, successActions = () => {}, errorActions = () => {}) {
+export function get(url, successActions = () => { }, errorActions = () => { }) {
 	return apiRequest("GET", url, null, successActions, errorActions);
 }
 
