@@ -105,3 +105,20 @@ def update_activo_desc(activo_id, nueva_desc):
         return jsonify({"status": 200, "message": "Descripción actualizada exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+# Función para actualizar el estado de implementación de un control en base al código del control 
+def update_control_state_by_code(code, new_state):
+    try:
+        collection = db['controles']
+        result = collection.update_one(
+            {"code": code},
+            {"$set": {"state": new_state}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Control no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating control with code {code}: {e}")
+        return jsonify({"status": 500, "error": str(e)})

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state_by_code
 import requests
 
 app = Flask(__name__)
@@ -89,6 +89,13 @@ def api_update_activo_desc(activo_id):
     if nueva_desc is None:
         return jsonify({"status": 400, "error": "No se proporcionó una nueva descripción"}), 400
     return update_activo_desc(activo_id, nueva_desc)
+
+# Endpoint para actualizar el estado de implementación de un control
+@app.route('/api/controles/<code>', methods=['PUT'])
+def update_control_state(code):
+    data = request.get_json()
+    new_state = data.get("state")
+    return update_control_state_by_code(code, new_state)
 
 
 if __name__ == '__main__':
