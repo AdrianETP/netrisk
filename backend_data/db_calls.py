@@ -207,7 +207,7 @@ def update_activo_impacto(activo_id, nuevo_impacto):
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
 
-# Función para actualizar la posible pérdida debido a una vulenrabilidad técinca
+# Función para actualizar la posible pérdida debido a una vulnerabilidad técinca
 def update_perdida_tec(activo_id, nueva_perdida):
     try:
         collection = db['vul-tec']
@@ -223,7 +223,7 @@ def update_perdida_tec(activo_id, nueva_perdida):
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
 
-# Función para actualizar la posible pérdida debido a una vulenrabilidad organizacional
+# Función para actualizar la posible pérdida debido a una vulnerabilidad organizacional
 def update_perdida_org(activo_id, nueva_perdida):
     try:
         collection = db['vul-org']
@@ -239,7 +239,7 @@ def update_perdida_org(activo_id, nueva_perdida):
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
 
-# Función para actualizar el impacto de una vulenrabilidad técinca
+# Función para actualizar el impacto de una vulnerabilidad técinca
 def update_vul_tec_impacto(activo_id, nuevo_impacto):
     try:
         collection = db['vul-tec']
@@ -255,7 +255,7 @@ def update_vul_tec_impacto(activo_id, nuevo_impacto):
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
 
-# Función para actualizar el impacto de una vulenrabilidad organizacional
+# Función para actualizar el impacto de una vulnerabilidad organizacional
 def update_vul_org_impacto(activo_id, nuevo_impacto):
     try:
         collection = db['vul-org']
