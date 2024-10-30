@@ -173,3 +173,20 @@ def update_role_pending_actions(role_id, new_pending_actions):
     except Exception as e:
         logging.error(f"Error updating pending actions for role with id {role_id}: {e}")
         return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_person_status(person_id, new_status):
+    try:
+        collection = db['personas']
+        result = collection.update_one(
+            {"id": person_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado de capacitacion actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating training status with id {person_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions, update_person_status
 import requests
 
 app = Flask(__name__)
@@ -104,19 +104,26 @@ def api_update_role_status(id):
     new_status = data.get("status")
     return update_role_status(id, new_status)
 
-# Endpoint para actualizar el estado de cumplimiento de un rol
+# Endpoint para actualizar la persona asignada a un rol
 @app.route('/api/roles/<int:id>/persona', methods=['PUT'])
 def api_update_role_person(id):
     data = request.get_json()
     new_person = data.get("assignedPerson")
     return update_role_person(id, new_person)
 
-# Endpoint para actualizar el estado de cumplimiento de un rol
+# Endpoint para actualizar acciones pendientes de un rol
 @app.route('/api/roles/<int:id>/pending-actions', methods=['PUT'])
 def api_update_role_pending_actions(id):
     data = request.get_json()
     new_pending_actions = data.get("pendingActions")
     return update_role_pending_actions(id, new_pending_actions)
+
+# Endpoint para actualizar el estado de capacitación de una persona
+@app.route('/api/personas/<int:id>/estatus', methods=['PUT'])
+def api_update_person_status(id):
+    data = request.get_json()
+    new_status = data.get("status")
+    return update_person_status(id, new_status)
 
 
 if __name__ == '__main__':
