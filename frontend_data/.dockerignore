@@ -1,0 +1,33 @@
+# Node modules are usually installed inside the container
+node_modules
+npm-debug.log
+yarn-error.log
+# Logs
+*.log
+
+# Local environment files (avoid leaking sensitive information)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Cache and build files
+.cache
+dist
+build
+.vscode
+.DS_Store
+coverage
+
+# Git
+.git
+.gitignore
+
+# Miscellaneous editor or OS-specific files
+.idea
+*.swp
+*.swo
+*.swn
+*.bak
+Thumbs.db

@@ -7,128 +7,27 @@ import { Typography } from "@mui/material";
 import { Progress } from "@nextui-org/react";
 import "./roles.css";
 import EditableTable from "../Components/EditableTable.jsx";
+import { get } from "../../ApiRequests.js";
+import { useEffect, useState } from "react";
 
 function Roles() {
-	const rolesData = [
-		{
-			id: 1,
-			role: "Senior Agency Information Security Officer (SAISO)",
-			description:
-				"Encargado de supervisar la implementación de programas de seguridad de la información en la agencia, asegurando que se sigan políticas y directrices establecidas.",
-			assignedPerson: "Juan Pérez",
-			status: "Cumplido",
-			pendingActions:
-				"Revisión de políticas de seguridad, Actualización de procedimientos de respuesta a incidentes",
-			impact: "Crítico",
-			lastUpdate: "2024-10-18",
-		},
-		{
-			id: 2,
-			role: "Authorizing Official (AO)",
-			description:
-				"Responsable de aceptar o rechazar los riesgos relacionados con el uso de un sistema de información, basado en un análisis de seguridad.",
-			assignedPerson: "María López",
-			status: "Cumplido",
-			pendingActions:
-				"Evaluar el informe de análisis de riesgos, Aprobar plan de mitigación",
-			impact: "Alto",
-			lastUpdate: "2024-10-17",
-		},
-		{
-			id: 3,
-			role: "Information System Security Officer (ISSO)",
-			description:
-				"Responsable de garantizar la seguridad operativa diaria de los sistemas de información, manteniendo las medidas de seguridad y coordinando la respuesta a incidentes.",
-			assignedPerson: "Carlos Gómez",
-			status: "En proceso",
-			pendingActions:
-				"Implementar controles de acceso adicionales, Realizar pruebas de penetración",
-			impact: "Moderado",
-			lastUpdate: "2024-10-19",
-		},
-		{
-			id: 4,
-			role: "Information Owner/Steward",
-			description:
-				"Persona o grupo con la responsabilidad de establecer los requisitos de seguridad para la protección de la información almacenada en un sistema de información.",
-			assignedPerson: "Laura Martínez",
-			status: "Sin cumplir",
-			pendingActions: "Ninguna",
-			impact: "Bajo",
-			lastUpdate: "2024-10-15",
-		},
-		{
-			id: 5,
-			role: "Risk Executive (Function)",
-			description:
-				"Encargado de coordinar la gestión de riesgos a nivel organizacional, asegurando que los riesgos sean consistentes en todos los sistemas.",
-			assignedPerson: "Pedro Ramírez",
-			status: "Sin cumplir",
-			pendingActions:
-				"Revisar riesgos identificados en nuevos proyectos, Actualizar la política de gestión de riesgos",
-			impact: "Bajo",
-			lastUpdate: "2024-10-16",
-		},
-		{
-			id: 6,
-			role: "Senior Agency Information Security Officer (SAISO)",
-			description:
-				"Encargado de supervisar la implementación de programas de seguridad de la información en la agencia, asegurando que se sigan políticas y directrices establecidas.",
-			assignedPerson: "Juan Pérez",
-			status: "Cumplido",
-			pendingActions:
-				"Revisión de políticas de seguridad, Actualización de procedimientos de respuesta a incidentes",
-			impact: "Crítico",
-			lastUpdate: "2024-10-18",
-		},
-		{
-			id: 7,
-			role: "Authorizing Official (AO)",
-			description:
-				"Responsable de aceptar o rechazar los riesgos relacionados con el uso de un sistema de información, basado en un análisis de seguridad.",
-			assignedPerson: "María López",
-			status: "Cumplido",
-			pendingActions:
-				"Evaluar el informe de análisis de riesgos, Aprobar plan de mitigación",
-			impact: "Alto",
-			lastUpdate: "2024-10-17",
-		},
-		{
-			id: 8,
-			role: "Information System Security Officer (ISSO)",
-			description:
-				"Responsable de garantizar la seguridad operativa diaria de los sistemas de información, manteniendo las medidas de seguridad y coordinando la respuesta a incidentes.",
-			assignedPerson: "Carlos Gómez",
-			status: "En proceso",
-			pendingActions:
-				"Implementar controles de acceso adicionales, Realizar pruebas de penetración",
-			impact: "Moderado",
-			lastUpdate: "2024-10-19",
-		},
-		{
-			id: 9,
-			role: "Information Owner/Steward",
-			description:
-				"Persona o grupo con la responsabilidad de establecer los requisitos de seguridad para la protección de la información almacenada en un sistema de información.",
-			assignedPerson: "Laura Martínez",
-			status: "Sin cumplir",
-			pendingActions: "Ninguna",
-			impact: "Bajo",
-			lastUpdate: "2024-10-15",
-		},
-		{
-			id: 10,
-			role: "Risk Executive (Function)",
-			description:
-				"Encargado de coordinar la gestión de riesgos a nivel organizacional, asegurando que los riesgos sean consistentes en todos los sistemas.",
-			assignedPerson: "Pedro Ramírez",
-			status: "Sin cumplir",
-			pendingActions:
-				"Revisar riesgos identificados en nuevos proyectos, Actualizar la política de gestión de riesgos",
-			impact: "Bajo",
-			lastUpdate: "2024-10-16",
-		},
-	];
+	const [rolesData, setRolesData] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		get("api/roles")
+			.then((result) => {
+				setRolesData(result.data);
+				setIsLoading(false);
+				console.log(result.data);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
+	
 
 	const columns = [
 		{ key: "role", label: "ROL" },

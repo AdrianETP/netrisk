@@ -15,9 +15,9 @@ function Activos() {
 	useEffect(() => {
 		get("api/activos")
 			.then((result) => {
-				setActivos(result);
+				setActivos(result.data);
 				setIsLoading(false);
-				console.log(result);
+				console.log(result.data);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
@@ -114,14 +114,12 @@ function Activos() {
 						</Button>
 					</div>
 				</div>
-				<div className="diagrama-red">
-					{/*<img src={placeholder}></img>*/}
-				</div>
+				<div className="diagrama-red">{/*<img src={placeholder}></img>*/}</div>
 			</div>
 			<div className="tabla-activos">
 				<EditableTable
 					columns={columns}
-					initialData={initialData}
+					initialData={activos}
 					editableColumns={editableColumns}
 					dropdownOptions={dropdownOptions}
 				/>

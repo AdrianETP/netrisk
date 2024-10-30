@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRangePicker } from "@nextui-org/date-picker";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/react";
@@ -9,8 +9,25 @@ import { DatePicker } from "@nextui-org/react";
 import { now, getLocalTimeZone } from "@internationalized/date";
 import EditableTable from "../Components/EditableTable.jsx";
 import "./auditorias.css";
+import { get } from "../../ApiRequests.js";
 
 function Auditorias() {
+
+	const [audits, setAudits] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		get("api/auditorias")
+			.then((result) => {
+				setAudits(result.data);
+				setIsLoading(false);
+				console.log(result.data);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
 	
 	const auditData = [
 		{
@@ -158,7 +175,7 @@ function Auditorias() {
 				<div className="tabla-auditorias">
 					<EditableTable
 						columns={columns}
-						initialData={auditData}
+						initialData={audits}
 						editableColumns={editableColumns}
 						dropdownOptions={dropdownOptions}
 						baseHeight="max-h-[300px]"

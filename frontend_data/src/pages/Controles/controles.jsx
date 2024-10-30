@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SmallStatsCard from "./Components/SmallStatsCard";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
@@ -13,8 +13,25 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import ControlCard from "./Components/ControlCard";
+import { get } from "../../ApiRequests.js";
 
 function Controles() {
+	const [controls, setControls] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		get("api/controles")
+			.then((result) => {
+				setControls(result.data);
+				setIsLoading(false);
+				console.log(result.data);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
 	const stats = [
 		{
 			title: "Implementados",
@@ -83,7 +100,7 @@ function Controles() {
 	];
 
 	const [inputValue, setInputValue] = useState("");
-	const filteredControles = controles.filter((control) =>
+	const filteredControles = controls.filter((control) =>
 		control.nombre.toLowerCase().includes(inputValue.toLowerCase())
 	);
 
@@ -115,7 +132,7 @@ function Controles() {
 				</div>
 				<Autocomplete
 					disablePortal
-					options={controles}
+					options={controls}
 					getOptionLabel={(option) => option.nombre}
 					onInputChange={(event, newInputValue) => {
 						setInputValue(newInputValue);
