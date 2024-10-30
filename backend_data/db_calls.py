@@ -126,7 +126,7 @@ def update_control_state(code, new_state):
 # Función para actualizar el estado de cumplimiento de un rol
 def update_role_status(role_id, new_status):
     try:
-        collection = db['roles']  # Asegúrate de usar el nombre correcto de la colección
+        collection = db['roles']
         result = collection.update_one(
             {"id": role_id},
             {"$set": {"status": new_status}}
@@ -138,4 +138,38 @@ def update_role_status(role_id, new_status):
         return jsonify({"status": 200, "message": "Estado del rol actualizado exitosamente"})
     except Exception as e:
         logging.error(f"Error updating role with id {role_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_person(role_id, new_person):
+    try:
+        collection = db['roles']
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"assignedPerson": new_person}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Persona asignada actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating person with role id {role_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_pending_actions(role_id, new_pending_actions):
+    try:
+        collection = db['roles']
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"pendingActions": new_pending_actions}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Acciones pendientes del rol actualizadas exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating pending actions for role with id {role_id}: {e}")
         return jsonify({"status": 500, "error": str(e)})
