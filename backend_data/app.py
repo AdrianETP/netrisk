@@ -98,14 +98,14 @@ def api_update_control_state(code):
     return update_control_state(code, new_state)
 
 # Endpoint para actualizar el estado de cumplimiento de un rol
-@app.route('/api/roles/estatus/<int:id>', methods=['PUT'])
+@app.route('/api/roles/<int:id>/estatus', methods=['PUT'])
 def api_update_role_status(id):
     data = request.get_json()
     new_status = data.get("status")
     return update_role_status(id, new_status)
 
 # Endpoint para actualizar el estado de cumplimiento de un rol
-@app.route('/api/roles/persona/<int:id>', methods=['PUT'])
+@app.route('/api/roles/<int:id>/persona', methods=['PUT'])
 def api_update_role_person(id):
     data = request.get_json()
     new_person = data.get("assignedPerson")
