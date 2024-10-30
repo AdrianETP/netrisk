@@ -1,6 +1,12 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions, update_person_status, update_activo_impacto
+from db_calls import (
+    get_activos, get_auditorias, get_controles, get_personas, get_roles, 
+    get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
+    update_role_status, update_role_person, update_role_pending_actions,
+    update_person_status, update_activo_impacto, update_perdida_tec,
+    update_perdida_org
+    )
 import requests
 
 app = Flask(__name__)
@@ -131,6 +137,20 @@ def api_update_activo_impacto(activo_id):
     data = request.get_json()
     nuevo_impacto = data.get("impact")
     return update_activo_impacto(activo_id, nuevo_impacto)
+
+# Endpoint para actualizar la posible pérdida debido a una vulenrabilidad técinca
+@app.route('/api/vul-tec/<id>/perdida', methods=['PUT'])
+def api_update_perdida_tec(id):
+    data = request.get_json()
+    nueva_perdida = data.get("potentialLoss")
+    return update_perdida_tec(id, nueva_perdida)
+
+# Endpoint para actualizar la posible pérdida debido a una vulenrabilidad organizacional
+@app.route('/api/vul-org/<int:id>/perdida', methods=['PUT'])
+def api_update_perdida_org(id):
+    data = request.get_json()
+    nueva_perdida = data.get("potentialLoss")
+    return update_perdida_org(id, nueva_perdida)
 
 
 if __name__ == '__main__':
