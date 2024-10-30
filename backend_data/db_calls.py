@@ -107,7 +107,7 @@ def update_activo_desc(activo_id, nueva_desc):
         return jsonify({"status": 500, "error": str(e)})
     
 # Función para actualizar el estado de implementación de un control en base al código del control 
-def update_control_state_by_code(code, new_state):
+def update_control_state(code, new_state):
     try:
         collection = db['controles']
         result = collection.update_one(
@@ -121,4 +121,21 @@ def update_control_state_by_code(code, new_state):
         return jsonify({"status": 200, "message": "Estado actualizado exitosamente"})
     except Exception as e:
         logging.error(f"Error updating control with code {code}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_status(role_id, new_status):
+    try:
+        collection = db['roles']  # Asegúrate de usar el nombre correcto de la colección
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado del rol actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating role with id {role_id}: {e}")
         return jsonify({"status": 500, "error": str(e)})

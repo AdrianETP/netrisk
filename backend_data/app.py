@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state_by_code
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status
 import requests
 
 app = Flask(__name__)
@@ -92,10 +92,17 @@ def api_update_activo_desc(activo_id):
 
 # Endpoint para actualizar el estado de implementación de un control
 @app.route('/api/controles/<code>', methods=['PUT'])
-def update_control_state(code):
+def api_update_control_state(code):
     data = request.get_json()
     new_state = data.get("state")
-    return update_control_state_by_code(code, new_state)
+    return update_control_state(code, new_state)
+
+# Endpoint para actualizar el estado de cumplimiento de un rol
+@app.route('/api/roles/<int:id>', methods=['PUT'])
+def api_update_role_status(id):
+    data = request.get_json()
+    new_status = data.get("status")
+    return update_role_status(id, new_status)
 
 
 if __name__ == '__main__':
