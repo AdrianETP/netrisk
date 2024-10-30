@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions, update_person_status
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions, update_person_status, update_activo_impacto
 import requests
 
 app = Flask(__name__)
@@ -124,6 +124,13 @@ def api_update_person_status(id):
     data = request.get_json()
     new_status = data.get("status")
     return update_person_status(id, new_status)
+
+# Endpoint para actualizar el impacto de un activo
+@app.route('/api/activos/<int:activo_id>/impacto', methods=['PUT'])
+def api_update_activo_impacto(activo_id):
+    data = request.get_json()
+    nuevo_impacto = data.get("impact")
+    return update_activo_impacto(activo_id, nuevo_impacto)
 
 
 if __name__ == '__main__':
