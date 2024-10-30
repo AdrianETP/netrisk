@@ -238,3 +238,35 @@ def update_perdida_org(activo_id, nueva_perdida):
         return jsonify({"status": 200, "message": "Pérdida actualizada exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el impacto de una vulenrabilidad técinca
+def update_vul_tec_impacto(activo_id, nuevo_impacto):
+    try:
+        collection = db['vul-tec']
+        result = collection.update_one(
+            {"id": activo_id},
+            {"$set": {"impact": nuevo_impacto}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Vulnerabilidad técnica no encontrada"}), 404
+
+        return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el impacto de una vulenrabilidad organizacional
+def update_vul_org_impacto(activo_id, nuevo_impacto):
+    try:
+        collection = db['vul-org']
+        result = collection.update_one(
+            {"id": activo_id},
+            {"$set": {"impact": nuevo_impacto}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Vulnerabilidad organizacional no encontrada"}), 404
+
+        return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})

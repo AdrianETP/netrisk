@@ -5,7 +5,7 @@ from db_calls import (
     get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
-    update_perdida_org
+    update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto
     )
 import requests
 
@@ -138,19 +138,33 @@ def api_update_activo_impacto(activo_id):
     nuevo_impacto = data.get("impact")
     return update_activo_impacto(activo_id, nuevo_impacto)
 
-# Endpoint para actualizar la posible pérdida debido a una vulenrabilidad técinca
+# Endpoint para actualizar la posible pérdida debido a una vulnerabilidad técinca
 @app.route('/api/vul-tec/<id>/perdida', methods=['PUT'])
 def api_update_perdida_tec(id):
     data = request.get_json()
     nueva_perdida = data.get("potentialLoss")
     return update_perdida_tec(id, nueva_perdida)
 
-# Endpoint para actualizar la posible pérdida debido a una vulenrabilidad organizacional
+# Endpoint para actualizar la posible pérdida debido a una vulnerabilidad organizacional
 @app.route('/api/vul-org/<int:id>/perdida', methods=['PUT'])
 def api_update_perdida_org(id):
     data = request.get_json()
     nueva_perdida = data.get("potentialLoss")
     return update_perdida_org(id, nueva_perdida)
+
+# Endpoint para actualizar el impacto de una vulnerabilidad técinca
+@app.route('/api/vul-tec/<id>/impacto', methods=['PUT'])
+def api_update_vul_tec_impacto(id):
+    data = request.get_json()
+    nuevo_impacto = data.get("impact")
+    return update_vul_tec_impacto(id, nuevo_impacto)
+
+# Endpoint para actualizar el impacto de una vulnerabilidad organizacional
+@app.route('/api/vul-org/<int:id>/impacto', methods=['PUT'])
+def api_update_vul_org_impacto(id):
+    data = request.get_json()
+    nuevo_impacto = data.get("impact")
+    return update_vul_org_impacto(id, nuevo_impacto)
 
 
 if __name__ == '__main__':
