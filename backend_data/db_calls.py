@@ -89,3 +89,104 @@ def get_vul_tec():
     except Exception as e:
         logging.error(f"Error retrieving tecnical vulnerabilities: {e}")
         return jsonify({"status": 500, "error": str(e)})
+    
+# Función para actualizar la descripción de un activo
+def update_activo_desc(activo_id, nueva_desc):
+    try:
+        collection = db['activos']
+        result = collection.update_one(
+            {"id": activo_id},  # Busca el activo por el campo `id`
+            {"$set": {"desc": nueva_desc}}  # Actualiza el campo `desc`
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Activo no encontrado"}), 404
+
+        return jsonify({"status": 200, "message": "Descripción actualizada exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+# Función para actualizar el estado de implementación de un control en base al código del control 
+def update_control_state(code, new_state):
+    try:
+        collection = db['controles']
+        result = collection.update_one(
+            {"code": code},
+            {"$set": {"state": new_state}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Control no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating control with code {code}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_status(role_id, new_status):
+    try:
+        collection = db['roles']
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado del rol actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating role with id {role_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_person(role_id, new_person):
+    try:
+        collection = db['roles']
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"assignedPerson": new_person}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Persona asignada actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating person with role id {role_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_role_pending_actions(role_id, new_pending_actions):
+    try:
+        collection = db['roles']
+        result = collection.update_one(
+            {"id": role_id},
+            {"$set": {"pendingActions": new_pending_actions}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Acciones pendientes del rol actualizadas exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating pending actions for role with id {role_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})
+
+# Función para actualizar el estado de cumplimiento de un rol
+def update_person_status(person_id, new_status):
+    try:
+        collection = db['personas']
+        result = collection.update_one(
+            {"id": person_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Rol no encontrado"}), 404
+        
+        return jsonify({"status": 200, "message": "Estado de capacitacion actualizado exitosamente"})
+    except Exception as e:
+        logging.error(f"Error updating training status with id {person_id}: {e}")
+        return jsonify({"status": 500, "error": str(e)})

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from upload import upload, ask_docs, ask_riesgo
-from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec
+from db_calls import get_activos, get_auditorias, get_controles, get_personas, get_roles, get_vul_org, get_vul_tec, update_activo_desc, update_control_state, update_role_status, update_role_person, update_role_pending_actions, update_person_status
 import requests
 from flask_cors import CORS
 
@@ -84,6 +84,49 @@ def api_get_vul_org():
 def api_get_vul_tec():
     return get_vul_tec()
 
+# Endpoint para actualizar la descripción de un activo
+@app.route('/api/activos/<int:activo_id>/desc', methods=['PUT'])
+def api_update_activo_desc(activo_id):
+    data = request.get_json()
+    nueva_desc = data.get("desc")
+    if nueva_desc is None:
+        return jsonify({"status": 400, "error": "No se proporcionó una nueva descripción"}), 400
+    return update_activo_desc(activo_id, nueva_desc)
+
+# Endpoint para actualizar el estado de implementación de un control
+@app.route('/api/controles/<code>', methods=['PUT'])
+def api_update_control_state(code):
+    data = request.get_json()
+    new_state = data.get("state")
+    return update_control_state(code, new_state)
+
+# Endpoint para actualizar el estado de cumplimiento de un rol
+@app.route('/api/roles/<int:id>/estatus', methods=['PUT'])
+def api_update_role_status(id):
+    data = request.get_json()
+    new_status = data.get("status")
+    return update_role_status(id, new_status)
+
+# Endpoint para actualizar la persona asignada a un rol
+@app.route('/api/roles/<int:id>/persona', methods=['PUT'])
+def api_update_role_person(id):
+    data = request.get_json()
+    new_person = data.get("assignedPerson")
+    return update_role_person(id, new_person)
+
+# Endpoint para actualizar acciones pendientes de un rol
+@app.route('/api/roles/<int:id>/pending-actions', methods=['PUT'])
+def api_update_role_pending_actions(id):
+    data = request.get_json()
+    new_pending_actions = data.get("pendingActions")
+    return update_role_pending_actions(id, new_pending_actions)
+
+# Endpoint para actualizar el estado de capacitación de una persona
+@app.route('/api/personas/<int:id>/estatus', methods=['PUT'])
+def api_update_person_status(id):
+    data = request.get_json()
+    new_status = data.get("status")
+    return update_person_status(id, new_status)
 
 
 if __name__ == '__main__':
