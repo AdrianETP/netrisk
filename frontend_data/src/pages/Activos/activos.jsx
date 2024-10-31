@@ -4,13 +4,13 @@ import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import { Button } from "@nextui-org/button";
 import "./activos.css";
 import { get } from "../../ApiRequests.js";
-import { useState, useEffect} from "react";
-
+import { useState, useEffect } from "react";
 
 function Activos() {
-
 	const [activos, setActivos] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [progressDigital, setProgressDigital] = useState(0);
+	const [progressCategorizacion, setProgressCategorizacion] = useState(0);
 
 	useEffect(() => {
 		get("api/activos")
@@ -18,6 +18,18 @@ function Activos() {
 				setActivos(result.data);
 				setIsLoading(false);
 				console.log(result.data);
+
+				// Aquí calculamos los valores para los círculos de progreso
+				const totalActivos = result.data.length;
+				const activosCategorizados = result.data.filter(
+					(activo) => activo.desc
+				).length; // Ajusta la condición según tus datos
+
+				// Calculamos los porcentajes
+				setProgressDigital(totalActivos);
+				setProgressCategorizacion(
+					(activosCategorizados / totalActivos) * 100 || 0
+				);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
@@ -35,52 +47,8 @@ function Activos() {
 		{ key: "impact", label: "IMPACTO" },
 	];
 
-	const initialData = [
-		{
-			id: 1,
-			idTabla: "Router1",
-			ip: "192.168.0.1",
-			macAddress: "00:0a:95:9d:68:16",
-			device: "Router",
-			operatingSystem: "Linux",
-			desc: "",
-			impact: "Crítico",
-		},
-		{
-			id: 2,
-			idTabla: "PC2",
-			ip: "192.168.0.2",
-			macAddress: "00:0a:95:9d:68:17",
-			device: "PC",
-			operatingSystem: "Windows 10",
-			desc: "Dispositivo 2",
-			impact: "Alto",
-		},
-		{
-			id: 3,
-			idTabla: "Servidor3",
-			ip: "192.168.0.3",
-			macAddress: "00:0a:95:9d:68:18",
-			device: "Servidor",
-			operatingSystem: "Ubuntu",
-			desc: "Dispositivo 3",
-			impact: "Moderado",
-		},
-		{
-			id: 4,
-			idTabla: "Smartphone4",
-			ip: "192.168.0.4",
-			macAddress: "00:0a:95:9d:68:19",
-			device: "Smartphone",
-			operatingSystem: "Android",
-			desc: "Dispositivo 4",
-			impact: "Bajo",
-		},
-	];
-
 	const editableColumns = ["desc"];
 	const dropdownOptions = [""];
-
 
 	return (
 		<div>
@@ -88,16 +56,16 @@ function Activos() {
 				<div className="flex flex-col px-4 circulos-activos">
 					<div className="flex flex-row p-4 gap-4 mb-2">
 						<ProgressCircle
-							progressValue={100} // Controls the progress bar percentage
-							displayValue="100" // The value shown inside the circle
+							progressValue={100} // Valor de progreso dinámico
+							displayValue={`${progressDigital}`} // Muestra el valor redondeado
 							customColor="#0DD4CE"
 							size={170}
 							strokeWidth={9}
 							label="Activos digitales"
 						/>
 						<ProgressCircle
-							progressValue={75} // Controls the progress bar percentage
-							displayValue="75%" // The value shown inside the circle
+							progressValue={progressCategorizacion} // Valor de progreso dinámico
+							displayValue={`${Math.round(progressCategorizacion)}%`} // Muestra el valor redondeado
 							customColor="#0DD4CE"
 							size={170}
 							strokeWidth={9}

@@ -17,9 +17,26 @@ function Roles() {
 	useEffect(() => {
 		get("api/roles")
 			.then((result) => {
-				setRolesData(result.data);
+				// Ordena los datos según el impacto y el estado
+				const sortedData = result.data.sort((a, b) => {
+					// Primero, ordena por impacto crítico
+					const impactOrder = { Crítico: 0, Alto: 1, Moderado: 2, Bajo: 3 };
+					const impactComparison =
+						impactOrder[a.impact] - impactOrder[b.impact];
+					if (impactComparison !== 0) return impactComparison;
+
+					// Si ambos tienen el mismo impacto, ordena por estado
+					const statusOrder = {
+						"Sin cumplir": 0,
+						"En proceso": 1,
+						Cumplido: 2,
+					};
+					return statusOrder[a.status] - statusOrder[b.status];
+				});
+
+				setRolesData(sortedData);
 				setIsLoading(false);
-				console.log(result.data);
+				console.log(sortedData);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);

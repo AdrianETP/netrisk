@@ -35,7 +35,10 @@ def leer_pdfs(directorio, chunk_size):
 
 def upload():
     try:
-        client = chromadb.HttpClient(host="chromadb", port=8000)
+        # Use the base ChromaDB API endpoint for collections
+        client = chromadb.HttpClient(host='chromadb', port=8000)
+        
+        # Attempt to create or get collections using the correct endpoint
         collectiondocs = client.get_or_create_collection(name="docs")
         collectionriesgos = client.get_or_create_collection(name="riesgos")
         collectioncases = client.get_or_create_collection(name="cases")
@@ -43,61 +46,46 @@ def upload():
     except Exception as e:
         logging.error(f"Failed to connect to ChromaDB: {e}")
         return jsonify({"status": 500, "error": str(e)}), 500
-    ollamaClient = ollama.Client(host="http://myollama:11434")
+
+
+    try:
+        ollamaClient = ollama.Client(host="http://myollama:11434")
+    except Exception as e:
+        logging.error(f"Failed to connect to Ollama client: {e}")
+        return jsonify({"status": 500, "error": str(e)}), 500
+
     directorio_pdfs = 'media'
     directorio_cases = 'cases'
     documents = leer_pdfs(directorio_pdfs, 500)
     cases = leer_pdfs(directorio_cases, 100)
 
     riesgos = [
-        "If a computer has port 443 open, which is the HTTPS port for accessing web pages, there is a threat of a DoS attack and a risk of loss of data availability.",
-        "If a computer has port 23 open, which is the Telnet port, there is a threat of ransomware and a risk of loss of data integrity.",
-        "If a computer has port 3389 open, which is used for remotely accessing computers via RDP (Remote Desktop Protocol), there is a threat of a brute-force attack on RDP and a risk of loss of data confidentiality.",
-        "If a computer has port 21 open, which is used for transferring files via FTP, there is a threat of a brute-force attack on FTP and a risk of loss of data confidentiality.",
+        "If a computer has port 443 open, there is a threat of a DoS attack.",
+        "If a computer has port 23 open, there is a threat of ransomware.",
+        "If a computer has port 3389 open, there is a threat of a brute-force attack on RDP.",
+        "If a computer has port 21 open, there is a threat of a brute-force attack on FTP.",
     ]
 
-    for i, d in enumerate(documents):
-        try:
-            response = ollamaClient.embeddings(
-                model="mxbai-embed-large", prompt=d)
-            embedding = response["embedding"]
-            collectiondocs.add(
-                ids=["docs_"+str(i)],
-                embeddings=[embedding],
-                documents=[d]
-            )
-        except Exception as ex:
-            logging.error(f"Error processing document {i}: {ex}")
-            continue  # Skip to the next document
+    def add_to_collection(collection, items, prefix):
+        for i, item in enumerate(items):
+            try:
+                response = ollamaClient.embeddings(model="mxbai-embed-large", prompt=item)
+                embedding = response["embedding"]
+                collection.add(
+                    ids=[f"{prefix}_{i}"],
+                    embeddings=[embedding],
+                    documents=[item]
+                )
+            except Exception as ex:
+                logging.error(f"Error processing item {prefix}_{i}: {ex}")
+                continue  # Skip to the next item
 
-    for i, d in enumerate(cases):
-        try:
-            response = ollamaClient.embeddings(
-                model="mxbai-embed-large", prompt=d)
-            embedding = response["embedding"]
-            collectioncases.add(
-                ids=["docs_"+str(i)],
-                embeddings=[embedding],
-                documents=[d]
-            )
-        except Exception as ex:
-            logging.error(f"Error processing document {i}: {ex}")
-            continue  # Skip to the next document
-    for i, d in enumerate(riesgos):
-        try:
-            response = ollamaClient.embeddings(
-                model="mxbai-embed-large", prompt=d)
-            embedding = response["embedding"]
-            collectionriesgos.add(
-                ids=["riesgos_"+str(i)],
-                embeddings=[embedding],
-                documents=[d]
-            )
-        except Exception as ex:
-            logging.error(f"Error processing document {i}: {ex}")
-            continue  # Skip to the next document
-    return
+    # Upload documents, cases, and risks
+    add_to_collection(collectiondocs, documents, "docs")
+    add_to_collection(collectioncases, cases, "cases")
+    add_to_collection(collectionriesgos, riesgos, "riesgos")
 
+    return jsonify({"status": 200, "message": "Upload successful!"}), 200
 
 def ask_docs(prompt):
     try:
