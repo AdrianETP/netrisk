@@ -21,8 +21,13 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import { put } from "../../../ApiRequests.js";
 
-const ControlCard = ({ nombre, code, description, initialState }) => {
+const ControlCard = ({
+	nombre,
+	code,
+	description,
+	initialState }) => {
 	const [state, setState] = useState(initialState);
 	const modal = useDisclosure();
 	const [guia, setGuia] = useState("");
@@ -52,7 +57,19 @@ const ControlCard = ({ nombre, code, description, initialState }) => {
 	};
 
 	const handleStateChange = (event) => {
-		setState(event.target.value);
+		const newState = event.target.value;
+		setState(newState);
+
+		put(
+			`api/controles/${code}`,
+			{ state: newState },
+			() => {
+				console.log("Estado actualizado correctamente!");
+			},
+			() => {
+				console.error("Error al actualizar el estado");
+			}
+		);
 	};
 
 	const handleClick = () => {
