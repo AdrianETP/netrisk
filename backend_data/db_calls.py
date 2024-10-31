@@ -7,7 +7,14 @@ client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
 
+def delete_database():
+    return
+    # logica para borrar datos
 
+def post_activos():
+    delete_database()
+    # logica para subir activos a base de datos
+    return
 
 def procesar_y_guardar_resultados(resultados_pentest):
     collection = db["vul-tec"]
