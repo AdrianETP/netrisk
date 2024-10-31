@@ -5,20 +5,41 @@ from db_calls import (
     get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
-    update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto
+    update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto,
+    procesar_y_guardar_resultados
     )
 import requests
 from flask_cors import CORS
+import logging
 
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS en toda la app
+app.config['DEBUG'] = True
+
+# Configura el nivel de logger globalmente
+app.logger.setLevel(logging.INFO)
 
 
 @app.route('/')
 def home():
     return "Welcome to the Flask app!"
 
+@app.route('/api/run-pentest', methods=['POST'])
+def api_run_pentest():
+    try:
+        # Ejecuta el pentest y recibe los datos JSON
+        response = requests.get('http://mypentester:5001')
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to connect to pentester", "details": str(e)}), 500
+
+    # Procesa y guarda los datos
+    processed_data = procesar_y_guardar_resultados(data)
+    
+    # Retorna el resultado procesado como JSON
+    return jsonify(processed_data), 201
 
 @app.route('/api/data')
 def get_data():

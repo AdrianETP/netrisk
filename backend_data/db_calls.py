@@ -1,11 +1,69 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 import logging
-from flask import jsonify
+from flask import jsonify, current_app
 
 # Configura la conexión con MongoDB
 client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
+
+
+
+def procesar_y_guardar_resultados(resultado):
+    collection = db['vul-tec']
+
+    # Verifica que el resultado sea un diccionario JSON
+    if not isinstance(resultado, dict):
+        current_app.logger.error("Los datos proporcionados no son un diccionario JSON válido.")
+        raise ValueError("Los datos proporcionados no son un diccionario JSON válido.")
+
+    resultado_json = resultado.get('scan', {})
+    operaciones = []
+
+    for ip, info in resultado_json.items():
+        for puerto, datos_puerto in info.get('tcp', {}).items():
+            if datos_puerto['state'] == 'open':
+                # Define amenazas conocidas o desconocidas según el puerto
+                riesgo = {
+                    "23": {"threat": "Acceso no autorizado"},
+                    # otros puertos mapeados con amenazas
+                }.get(str(puerto), {"threat": "Desconocido"})
+
+                # Crea el documento para MongoDB
+                documento = {
+                    "id": f"activo_{ip}_{puerto}",
+                    "vulnerability": f"Puerto {puerto} ({datos_puerto['name']}) Abierto",
+                    "threat": riesgo["threat"],  # Asegura que `threat` es un string
+                    "impact": "",                # Se deja en blanco para llenarse posteriormente
+                    "potentialLoss": ""          # Se deja en blanco para llenarse posteriormente
+                }
+
+                # Agrega el documento a la lista de operaciones
+                operaciones.append(
+                    UpdateOne(
+                        {"id": documento["id"]},
+                        {"$set": documento},
+                        upsert=True
+                    )
+                )
+
+                # Loggea el documento creado para debug
+                current_app.logger.info(f"Documento creado: {documento}")
+
+    # Ejecuta las operaciones en MongoDB
+    try:
+        if operaciones:
+            result = collection.bulk_write(operaciones)
+            current_app.logger.info(f"Operaciones exitosas en bulk_write: {result.bulk_api_result}")
+        else:
+            current_app.logger.info("No se encontraron puertos abiertos para registrar.")
+    except Exception as e:
+        current_app.logger.error(f"Error en bulk_write: {e}")
+
+    # Resultado de confirmación
+    processed_data = {"status": "Resultados procesados y guardados", "total": len(operaciones)}
+    return processed_data
+
 
 # Función para serializar documentos y convertir ObjectId a cadena
 def serialize_document(document):
