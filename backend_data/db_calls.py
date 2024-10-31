@@ -9,60 +9,30 @@ print(db.list_collection_names())
 
 
 
-def procesar_y_guardar_resultados(resultado):
-    collection = db['vul-tec']
+def procesar_y_guardar_resultados(resultados_pentest):
+    collection = db["vul-tec"]
 
-    # Verifica que el resultado sea un diccionario JSON
-    if not isinstance(resultado, dict):
-        current_app.logger.error("Los datos proporcionados no son un diccionario JSON válido.")
-        raise ValueError("Los datos proporcionados no son un diccionario JSON válido.")
+    # Verifica si "scan" está presente en el JSON
+    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
+        print("Error: 'scan' no encontrado en los resultados del pentest")
+        return {"error": "'scan' no encontrado en los resultados del pentest"}
 
-    resultado_json = resultado.get('scan', {})
-    operaciones = []
-
-    for ip, info in resultado_json.items():
-        for puerto, datos_puerto in info.get('tcp', {}).items():
-            if datos_puerto['state'] == 'open':
-                # Define amenazas conocidas o desconocidas según el puerto
-                riesgo = {
-                    "23": {"threat": "Acceso no autorizado"},
-                    # otros puertos mapeados con amenazas
-                }.get(str(puerto), {"threat": "Desconocido"})
-
-                # Crea el documento para MongoDB
-                documento = {
-                    "id": f"activo_{ip}_{puerto}",
-                    "vulnerability": f"Puerto {puerto} ({datos_puerto['name']}) Abierto",
-                    "threat": riesgo["threat"],  # Asegura que `threat` es un string
-                    "impact": "",                # Se deja en blanco para llenarse posteriormente
-                    "potentialLoss": ""          # Se deja en blanco para llenarse posteriormente
+    for ip, datos in resultados_pentest["resultado"]["scan"].items():
+        # Extrae la información relevante
+        for puerto, info in datos.get("tcp", {}).items():
+            # Verifica si el estado es "open"
+            if info.get("state") == "open":
+                document = {
+                    "id": datos.get("hostnames")[0]["name"] if datos.get("hostnames") else ip,  # Obtener el nombre del host o la IP
+                    "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
+                    "threat": "Acceso no autorizado",  # Valor por defecto para threat
+                    "impact": "",  # Inicialmente vacío
+                    "potentialLoss": ""  # Inicialmente vacío
                 }
+                # Inserta el documento en la colección
+                collection.insert_one(document)
 
-                # Agrega el documento a la lista de operaciones
-                operaciones.append(
-                    UpdateOne(
-                        {"id": documento["id"]},
-                        {"$set": documento},
-                        upsert=True
-                    )
-                )
-
-                # Loggea el documento creado para debug
-                current_app.logger.info(f"Documento creado: {documento}")
-
-    # Ejecuta las operaciones en MongoDB
-    try:
-        if operaciones:
-            result = collection.bulk_write(operaciones)
-            current_app.logger.info(f"Operaciones exitosas en bulk_write: {result.bulk_api_result}")
-        else:
-            current_app.logger.info("No se encontraron puertos abiertos para registrar.")
-    except Exception as e:
-        current_app.logger.error(f"Error en bulk_write: {e}")
-
-    # Resultado de confirmación
-    processed_data = {"status": "Resultados procesados y guardados", "total": len(operaciones)}
-    return processed_data
+    return {"message": "Resultados procesados y guardados correctamente"}
 
 
 # Función para serializar documentos y convertir ObjectId a cadena
