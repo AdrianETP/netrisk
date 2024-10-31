@@ -27,10 +27,14 @@ def get_data():
 
 @app.route('/api/models/pull')
 def pull_models():
-    requests.post('http://myollama:11434/api/pull', json={"name": "llama2"})
-    requests.post('http://myollama:11434/api/pull',
-                  json={"name": "mxbai-embed-large"})
-    return jsonify({"status": 200, "message": "pulling models"})
+    try:
+        requests.post('http://myollama:11434/api/pull', json={"name": "llama2"})
+        requests.post('http://myollama:11434/api/pull',
+                    json={"name": "mxbai-embed-large"})
+        return jsonify({"status": 200, "message": "pulling models"})
+    except Exception as error:
+        return jsonify({"status": 500, "message": error})
+
 
 
 @app.route('/api/models/upload')
