@@ -12,8 +12,6 @@ services:
     hostname: myflask
     networks:
       - default
-    volumes:
-      - ./backend_data:/app
     environment:
       - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
 
