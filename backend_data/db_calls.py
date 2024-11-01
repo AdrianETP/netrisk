@@ -1,6 +1,11 @@
 from pymongo import MongoClient
 import logging
 from flask import jsonify
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.environ["API_KEY"])
+
 
 # Configura la conexión con MongoDB
 client = MongoClient('mongodb://mymongo:27017/')
@@ -268,5 +273,87 @@ def update_vul_org_impacto(activo_id, nuevo_impacto):
             return jsonify({"status": 404, "error": "Vulnerabilidad organizacional no encontrada"}), 404
 
         return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+
+# Función para generar guia de implementacion y guardarla en la db
+def generar_guia(code, nombre):
+    try:
+        prompt = f"Give me an implementation guide for NIST 800-53 control {code} {nombre} translated to spanish"
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        # Save the response in the corresponding control in the database
+        collection = db['controles']
+        collection.update_one(
+            {"code": code},
+            {"$set": {"guia": response.text}}  # Adjust this field as necessary
+        )
+        return jsonify({"status": 200, "message": "Guia generada exitosamente", "guia": response.text})
+
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+def get_guia(code):
+    try:
+        collection = db['controles']
+        control = collection.find_one({"code": code})  # Usa find_one en lugar de find
+        if control:  # Verifica que control no esté vacío
+            return control.get('guia', '')  # Devuelve 'guia' o un mensaje de error si no existe
+        else:
+            return jsonify({"status": 404, "message": "Control no encontrado"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)}) 
+
+def get_reportes():
+    try:
+        collection = db['reportes']
+        reportes = list(collection.find({}))
+        reportes_serializados = [serialize_document(reporte) for reporte in reportes]
+        return jsonify({"status": 200, "data": reportes_serializados})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)}) 
+    
+def get_conf():
+    try:
+        collection = db['configuracion']
+        configuracion = collection.find_one({"id": "configuracion"})
+        
+        # Convert the ObjectId to a string
+        if configuracion and '_id' in configuracion:
+            configuracion['_id'] = str(configuracion['_id'])
+        
+        return jsonify({"status": 200, "data": configuracion})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+def update_recurrencia(nueva_recurrencia):
+    try:
+        collection = db['configuracion']
+        result = collection.update_one(
+            {"id": "configuracion"},
+            {"$set": {"recurrencia": nueva_recurrencia}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Configuracion no encontrada"}), 404
+        
+        return jsonify({"status": 200, "message": "Recurrencia actualizada exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+def update_prox_auditoria(prox_auditoria):
+    try:
+        collection = db['configuracion']
+        result = collection.update_one(
+            {"id": "configuracion"},
+            {"$set": {"prox_auditoria": prox_auditoria}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Configuracion no encontrada"}), 404
+        
+        return jsonify({"status": 200, "message": "Proxima auditoria actualizada exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})

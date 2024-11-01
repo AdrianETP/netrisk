@@ -5,7 +5,9 @@ from db_calls import (
     get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
-    update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto
+    update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto, 
+    generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
+    update_prox_auditoria
     )
 import requests
 from flask_cors import CORS
@@ -173,6 +175,41 @@ def api_update_vul_org_impacto(id):
     nuevo_impacto = data.get("impact")
     return update_vul_org_impacto(id, nuevo_impacto)
 
+# Endpoint para generar la guìa de implementaciòn de un control y guardarlo en la base de datos, regresa la guia
+@app.route('/api/controles/<code>/guia', methods=['POST'])
+def api_generar_guia(code):
+    data = request.get_json()
+    nombre = data.get("nombre")
+    return generar_guia(code, nombre)
+
+# Endpoint para obtener la guìa de implementaciòn de un control
+@app.route('/api/controles/<code>/guia', methods=['GET'])
+def api_get_guia(code):
+    return get_guia(code)
+
+# Endpoint para obtener todos los reportes generados
+@app.route('/api/reportes', methods=['GET'])
+def api_get_reportes():
+    return get_reportes()
+
+# Endpoint para obtener configuracion de auditorias
+@app.route('/api/configuracion', methods=['GET'])
+def api_get_conf():
+    return get_conf()
+
+# Endpoint para actualizar configuracion de recurrencia
+@app.route('/api/configuracion/recurrencia', methods=['PUT'])
+def api_update_recurrencia():
+    data = request.get_json()
+    nueva_recurrencia = data.get("recurrencia")
+    return update_recurrencia(nueva_recurrencia)
+
+# Endpoint para actualizar proxima auditoria
+@app.route('/api/configuracion/prox_auditoria', methods=['PUT'])
+def api_update_prox_auditoria():
+    data = request.get_json()
+    prox_auditoria = data.get("prox_auditoria")
+    return update_prox_auditoria(prox_auditoria)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
