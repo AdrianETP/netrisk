@@ -327,3 +327,33 @@ def get_conf():
         return jsonify({"status": 200, "data": configuracion})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+def update_recurrencia(nueva_recurrencia):
+    try:
+        collection = db['configuracion']
+        result = collection.update_one(
+            {"id": "configuracion"},
+            {"$set": {"recurrencia": nueva_recurrencia}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Configuracion no encontrada"}), 404
+        
+        return jsonify({"status": 200, "message": "Recurrencia actualizada exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+def update_prox_auditoria(prox_auditoria):
+    try:
+        collection = db['configuracion']
+        result = collection.update_one(
+            {"id": "configuracion"},
+            {"$set": {"prox_auditoria": prox_auditoria}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"status": 404, "error": "Configuracion no encontrada"}), 404
+        
+        return jsonify({"status": 200, "message": "Proxima auditoria actualizada exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})

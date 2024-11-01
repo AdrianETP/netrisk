@@ -5,10 +5,10 @@ import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import PolicyRoundedIcon from "@mui/icons-material/PolicyRounded";
 import { Typography } from "@mui/material";
 import { DatePicker } from "@nextui-org/react";
-import { ZonedDateTime } from "@internationalized/date";
+import { CalendarDate, parseDate } from "@internationalized/date";
 import EditableTable from "../Components/EditableTable.jsx";
 import "./auditorias.css";
-import { get } from "../../ApiRequests.js";
+import { get, put } from "../../ApiRequests.js";
 
 function Auditorias() {
 	const [audits, setAudits] = useState([]);
@@ -34,7 +34,7 @@ function Auditorias() {
 				setRecurrencia(result.data.recurrencia);
 				// Convert the date string to ZonedDateTime if it exists
 				if (result.data.prox_auditoria) {
-					setProximaAuditoria(ZonedDateTime.from(result.data.prox_auditoria));
+					setProximaAuditoria(parseDate(result.data.prox_auditoria));
 				} else {
 					setProximaAuditoria(null);
 				}
@@ -63,12 +63,30 @@ function Auditorias() {
 
 	const handleRecurrenciaChange = (value) => {
 		setRecurrencia(value);
-		// Aquí podrías agregar lógica para actualizar la configuración en el backend
+		put(
+			"api/configuracion/recurrencia",
+			{ recurrencia: value.currentKey },
+			() => {
+				console.log("Recurrencia actualizada correctamente!");
+			},
+			() => {
+				console.error("Error al actualizar recurrencia");
+			}
+		);
 	};
 
 	const handleDateChange = (date) => {
-		setProximaAuditoria(date); // Ensure this is a valid ZonedDateTime or null
-		// Aquí podrías agregar lógica para actualizar la configuración en el backend
+		setProximaAuditoria(date); 
+		put(
+			"api/configuracion/prox_auditoria",
+			{ prox_auditoria: date.toString() },
+			() => {
+				console.log("Proxima auditoria actualizada correctamente!");
+			},
+			() => {
+				console.error("Error al actualizar proxima auditoria");
+			}
+		);
 	};
 
 	return (
@@ -80,7 +98,12 @@ function Auditorias() {
 						labelPlacement="outside"
 						label="Configuración actual"
 						variant="bordered"
-						placeholder="Recurrencia no seleccionada"
+						placeholder={
+							recurrencia
+								? recurrencias.find((r) => r.key === recurrencia)?.label ||
+								  "Recurrencia no seleccionada"
+								: "Recurrencia no seleccionada"
+						}
 						className="max-w-xs"
 						selectedKey={recurrencia}
 						onSelectionChange={handleRecurrenciaChange}
@@ -91,7 +114,8 @@ function Auditorias() {
 						label="Próxima auditoría programada"
 						variant="bordered"
 						labelPlacement="outside"
-						placeholderValue={proximaAuditoria || null} // Pass null if undefined
+						value={proximaAuditoria}
+						placeholderValue={proximaAuditoria} // Pass null if undefined
 						onChange={handleDateChange}
 						className="max-w-xs"
 						hideTimeZone
