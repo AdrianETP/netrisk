@@ -4,3 +4,4 @@ ollama
 PyMUPDF
 pymongo
 flask-cors
+google-generativeai

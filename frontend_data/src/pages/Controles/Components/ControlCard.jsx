@@ -21,13 +21,9 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
-import { put } from "../../../ApiRequests.js";
+import { put, get, post } from "../../../ApiRequests.js";
 
-const ControlCard = ({
-	nombre,
-	code,
-	description,
-	initialState }) => {
+const ControlCard = ({ nombre, code, description, initialState }) => {
 	const [state, setState] = useState(initialState);
 	const modal = useDisclosure();
 	const [guia, setGuia] = useState("");
@@ -72,38 +68,27 @@ const ControlCard = ({
 		);
 	};
 
-	const handleClick = () => {
+	const handleClick = async () => {
 		setLoading(true); // Start loading
 		modal.onOpen(); // Open modal
+		await get(`api/controles/${code}/guia`)
+			.then((result) => {
+				setGuia(result);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+			});
 
-		// Simulating an API call with a timeout
-		setTimeout(() => {
-			setGuia(`1. Inventario de Cuentas: Realiza un inventario de todas las cuentas de usuario (locales, remotas, privilegiadas, de invitado) en los sistemas.
-Usa herramientas automatizadas para escanear y listar cuentas activas, inactivas y duplicadas.
-
-2. Política de Creación y Asignación de Roles: Define políticas claras para la creación de nuevas cuentas de usuario.
-Asigna roles y permisos mínimos necesarios para cada cuenta, evitando permisos excesivos.
-Usa un sistema basado en roles (RBAC) para facilitar la asignación y revocación de permisos.
-
-3. Revisión Periódica de Cuentas: Establece una rutina para revisar y auditar cuentas de usuario periódicamente.
-Verifica que las cuentas activas sean las necesarias y deshabilita o elimina aquellas inactivas o no utilizadas.
-
-4. Política de Contraseñas Seguras: Implementa una política para exigir contraseñas robustas y actualizaciones periódicas.
-Utiliza herramientas para asegurar que las contraseñas no sean fácilmente adivinables y cumplan con estándares de seguridad.
-
-5. Autenticación Multifactor (MFA): Activa la autenticación multifactor para todas las cuentas, especialmente aquellas con permisos elevados.
-Esto agrega una capa adicional de seguridad, haciendo más difícil el acceso no autorizado.
-
-6. Gestión de Acceso a Sistemas: Limita el acceso a sistemas y aplicaciones según la necesidad de cada usuario.
-Utiliza un enfoque de privilegios mínimos para reducir la exposición a riesgos de seguridad.
-
-7. Monitoreo de Actividad: Implementa un sistema para monitorear la actividad de las cuentas. Detecta y notifica actividades sospechosas o inusuales, como intentos fallidos de inicio de sesión o accesos fuera del horario habitual.
-
-8. Desactivación de Cuentas de Ex-empleados: Asegúrate de desactivar o eliminar inmediatamente las cuentas de empleados que han dejado la organización.
-Realiza un proceso de baja de usuarios para evitar accesos no autorizados.`);
-			setGuiaLineas(guia.split("\n")); // Split the text into lines
-			setLoading(false); // End loading
-		}, 2000); // Simulate a 2-second delay
+		if (guia == "")
+			await post(`api/controles/${code}/guia`, { nombre: nombre })
+				.then((result) => {
+					console.log(result);
+					setGuia(result.guia);
+				})
+				.catch((error) => {
+					console.error("Ocurrió un error:", error);
+				});
+		setLoading(false); // End loading
 	};
 
 	return (

@@ -1,106 +1,50 @@
 import { useEffect, useState } from "react";
-import { DateRangePicker } from "@nextui-org/date-picker";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/react";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import PolicyRoundedIcon from "@mui/icons-material/PolicyRounded";
 import { Typography } from "@mui/material";
 import { DatePicker } from "@nextui-org/react";
-import { now, getLocalTimeZone } from "@internationalized/date";
+import { ZonedDateTime } from "@internationalized/date";
 import EditableTable from "../Components/EditableTable.jsx";
 import "./auditorias.css";
 import { get } from "../../ApiRequests.js";
 
 function Auditorias() {
-
 	const [audits, setAudits] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [recurrencia, setRecurrencia] = useState("");
+	const [proximaAuditoria, setProximaAuditoria] = useState(null);
 
 	useEffect(() => {
 		get("api/auditorias")
 			.then((result) => {
 				setAudits(result.data);
 				setIsLoading(false);
-				console.log(result.data);
 			})
 			.catch((error) => {
 				console.error("Ocurrió un error:", error);
 				setIsLoading(false);
 			});
 	}, []);
-	
-	const auditData = [
-		{
-			id: 1,
-			numeroAuditoria: "001",
-			fecha: "2024-10-18",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 2,
-			numeroAuditoria: "002",
-			fecha: "2024-10-17",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 3,
-			numeroAuditoria: "003",
-			fecha: "2024-10-19",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 4,
-			numeroAuditoria: "004",
-			fecha: "2024-10-15",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 5,
-			numeroAuditoria: "005",
-			fecha: "2024-10-16",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 6,
-			numeroAuditoria: "006",
-			fecha: "2024-10-18",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 7,
-			numeroAuditoria: "007",
-			fecha: "2024-10-17",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 8,
-			numeroAuditoria: "008",
-			fecha: "2024-10-19",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 9,
-			numeroAuditoria: "009",
-			fecha: "2024-10-15",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-		{
-			id: 10,
-			numeroAuditoria: "010",
-			fecha: "2024-10-16",
-			estado: "Completada",
-			reporteGenerado: "2024-10-18",
-		},
-	];
+
+	useEffect(() => {
+		get("api/configuracion")
+			.then((result) => {
+				setRecurrencia(result.data.recurrencia);
+				// Convert the date string to ZonedDateTime if it exists
+				if (result.data.prox_auditoria) {
+					setProximaAuditoria(ZonedDateTime.from(result.data.prox_auditoria));
+				} else {
+					setProximaAuditoria(null);
+				}
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
 
 	const columns = [
 		{ key: "numeroAuditoria", label: "NÚMERO DE AUDITORÍA" },
@@ -108,12 +52,6 @@ function Auditorias() {
 		{ key: "estado", label: "ESTADO" },
 		{ key: "reporteGenerado", label: "REPORTE GENERADO" },
 	];
-
-
-	const editableColumns = [];
-	const dropdownOptions = {
-		
-	};
 
 	const recurrencias = [
 		{ key: "semanal", label: "Recurrencial semanal" },
@@ -123,6 +61,15 @@ function Auditorias() {
 		{ key: "trimestral", label: "Recurrencial trimestral" },
 	];
 
+	const handleRecurrenciaChange = (value) => {
+		setRecurrencia(value);
+		// Aquí podrías agregar lógica para actualizar la configuración en el backend
+	};
+
+	const handleDateChange = (date) => {
+		setProximaAuditoria(date); // Ensure this is a valid ZonedDateTime or null
+		// Aquí podrías agregar lógica para actualizar la configuración en el backend
+	};
 
 	return (
 		<div>
@@ -135,6 +82,8 @@ function Auditorias() {
 						variant="bordered"
 						placeholder="Recurrencia no seleccionada"
 						className="max-w-xs"
+						selectedKey={recurrencia}
+						onSelectionChange={handleRecurrenciaChange}
 					>
 						{(recurrencia) => <SelectItem>{recurrencia.label}</SelectItem>}
 					</Select>
@@ -142,10 +91,11 @@ function Auditorias() {
 						label="Próxima auditoría programada"
 						variant="bordered"
 						labelPlacement="outside"
-						defaultValue={now(getLocalTimeZone())}
+						placeholderValue={proximaAuditoria || null} // Pass null if undefined
+						onChange={handleDateChange}
+						className="max-w-xs"
 						hideTimeZone
 						showMonthAndYearPickers
-						className="max-w-xs"
 					/>
 				</div>
 				<Button
@@ -176,8 +126,8 @@ function Auditorias() {
 					<EditableTable
 						columns={columns}
 						initialData={audits}
-						editableColumns={editableColumns}
-						dropdownOptions={dropdownOptions}
+						editableColumns={[]}
+						dropdownOptions={{}}
 						baseHeight="max-h-[300px]"
 					/>
 				</div>
