@@ -5,3 +5,4 @@ PyMUPDF
 pymongo
 flask-cors
 google-generativeai
+datetime

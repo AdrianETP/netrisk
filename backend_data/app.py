@@ -7,7 +7,7 @@ from db_calls import (
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
-    update_prox_auditoria
+    update_prox_auditoria, generar_reporte
     )
 import requests
 from flask_cors import CORS
@@ -210,6 +210,14 @@ def api_update_prox_auditoria():
     data = request.get_json()
     prox_auditoria = data.get("prox_auditoria")
     return update_prox_auditoria(prox_auditoria)
+
+# Endpoint para generar reporte en base a fechas
+@app.route('/api/reportes/generar', methods=['PUT'])
+def api_generar_reporte():
+    data = request.get_json()
+    fechaInicio = data.get("fechaInicio")
+    fechaFin = data.get("fechaFin")
+    return generar_reporte(fechaInicio, fechaFin)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

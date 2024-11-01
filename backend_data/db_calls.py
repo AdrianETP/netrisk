@@ -3,6 +3,8 @@ import logging
 from flask import jsonify
 import google.generativeai as genai
 import os
+from datetime import datetime
+
 
 genai.configure(api_key=os.environ["API_KEY"])
 
@@ -357,3 +359,72 @@ def update_prox_auditoria(prox_auditoria):
         return jsonify({"status": 200, "message": "Proxima auditoria actualizada exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+
+
+def generar_reporte(fechaInicio, fechaFin):
+    try:
+        # Convert input date strings to datetime objects
+        fechaInicio = datetime.strptime(fechaInicio, '%Y-%m-%d')
+        fechaFin = datetime.strptime(fechaFin, '%Y-%m-%d')
+
+        auditorias_collection = db['auditorias']
+        reportes_collection = db['reportes']
+        
+        # Query to filter audits within the specified date range (inclusive)
+        auditorias = list(auditorias_collection.find({
+            'fecha': {
+                '$gte': fechaInicio.strftime('%Y-%m-%d'),  # Start date (inclusive)
+                '$lte': fechaFin.strftime('%Y-%m-%d')      # End date (inclusive)
+            }
+        }))
+
+        # Generate the report using the filtered auditorias
+        prompt = f"Pretend you are a cybersecurity expert in the education field, generate me an executive report translated to Spanish given the following data about the network scans performed: {auditorias}. Only include the report content, do not include a title."
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        # Prepare report data
+        report_data = {
+            "id": generate_new_report_id(reportes_collection),  # Function to generate new unique report ID
+            "generatedDate": datetime.now().strftime('%Y-%m-%d'),  # Current date for report generation
+            "startDate": fechaInicio.strftime('%Y-%m-%d'),  # Start date of the report
+            "endDate": fechaFin.strftime('%Y-%m-%d'),        # End date of the report
+            "reportContent": response.text  # Assuming response contains the generated report content
+        }
+
+        # Store the report in the reportes collection
+        reportes_collection.insert_one(report_data)  # Save the report
+
+        # Update the reporteGenerado date for the corresponding auditorias
+        auditorias_collection.update_many(
+            {
+                'fecha': {
+                    '$gte': fechaInicio.strftime('%Y-%m-%d'),
+                    '$lte': fechaFin.strftime('%Y-%m-%d')
+                }
+            },
+            {
+                '$set': {
+                    'reporteGenerado': datetime.now().strftime('%Y-%m-%d')  # Update to current date
+                }
+            }
+        )
+
+        return jsonify({
+            "status": 200,
+            "message": "Reporte generado exitosamente"
+        })
+
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+
+def generate_new_report_id(reportes_collection):
+    # Get the last report document based on the highest ID
+    last_report = reportes_collection.find().sort("id", -1).limit(1)
+    last_report_list = list(last_report)  # Convert cursor to list
+
+    # Check if the list is empty and assign the next ID accordingly
+    last_id = last_report_list[0]['id'] if last_report_list else 0
+    return last_id + 1
+
