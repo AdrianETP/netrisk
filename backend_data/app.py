@@ -7,7 +7,7 @@ from db_calls import (
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
-    update_prox_auditoria, generar_reporte
+    update_prox_auditoria, generar_reporte, generar_controles, upload_file
     )
 import requests
 from flask_cors import CORS
@@ -218,6 +218,16 @@ def api_generar_reporte():
     fechaInicio = data.get("fechaInicio")
     fechaFin = data.get("fechaFin")
     return generar_reporte(fechaInicio, fechaFin)
+
+# Endpoint para generar recomendaciones de controles
+@app.route('/api/recomendar', methods=['PUT'])
+def api_generar_controles():
+    return generar_controles()
+
+# Endpoint para subir NIST pdf
+@app.route('/api/upload', methods=['PUT'])
+def api_upload_file():
+    return upload_file()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
