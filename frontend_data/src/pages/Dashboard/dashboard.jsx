@@ -1,11 +1,18 @@
-import { Typography } from "@mui/material";
+import { IconButton, Tooltip, Typography,  } from "@mui/material";
 import ProgressCircle from "../Components/ProgressCircle.jsx";
 import "./dashboard.css";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
+import { useDisclosure } from "@nextui-org/react";
+import NetScoreModal from "./components/NetScoreModal.jsx";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+
 
 function Dashboard() {
+
+	const modal1 = useDisclosure();
+
 	// Define a custom color palette
 	const customPalette = [
 		"#0DD4CE",
@@ -54,7 +61,7 @@ function Dashboard() {
 					margin={{ left: 30, right: 30, top: 30, bottom: 30 }}
 				/>
 			</div>
-			<div className="justify-center -mr-5">
+			<div className="relative justify-center -mr-5">
 				<ProgressCircle
 					progressValue={100} // Controls the progress bar percentage
 					displayValue="100" // The value shown inside the circle
@@ -63,7 +70,21 @@ function Dashboard() {
 					strokeWidth={9}
 					label="NetScore"
 				/>
+				<Tooltip title="¿Qué es el NetScore?" arrow>
+					<IconButton
+						onClick={modal1.onOpen}
+						sx={{
+							position: "absolute",
+							top: "0px", // Ajusta la posición según sea necesario
+							right: "0px", // Ajusta la posición según sea necesario
+							color: "#ffffff",
+						}}
+					>
+						<HelpOutlineIcon />
+					</IconButton>
+				</Tooltip>
 			</div>
+
 			<div className="card-background-dashboard">
 				<Typography>Vulnerabilidades por categoría</Typography>
 				<PieChart
@@ -113,6 +134,7 @@ function Dashboard() {
 					margin={{ left: 30, right: 30, top: 30, bottom: 30 }}
 				/>
 			</div>
+			<NetScoreModal isVisible={modal1.isOpen} onClose={modal1.onClose} />
 		</div>
 	);
 }
