@@ -155,3 +155,20 @@ def ask_riesgo(prompt):
     )
 
     return jsonify({"status": 200, "response": output['response'], "data": data})
+
+def generate_impact(prompt):
+    ollamaClient = ollama.Client(host="http://myollama:11434")
+    output = ollamaClient.generate(
+        model= "llama2",
+        # bajo, alto, moderado, critico
+        prompt=f"""
+        Imaginate que eres un analista de ciberseguridad en el sector educativo.
+        Uno de tus clientes tiene un dispositivo con la siguiente descripcion:
+        {prompt}
+        Dale una puntuacion del impacto de ese dispositivo en la red entre bajo (poco impacto), moderado (impacto moderado), alto (alto impacto), critico (impacto critico).
+        Considera que tan critico seria si hubiera un incidente de seguridad y este activo dejara de existir. La empresa podria seguir funcionando? que tan bien funcionaria?
+        Solo puedes usar una palabra para tu respuesta. No puedes usar mas que eso
+        """
+    )
+    return jsonify({"status":200, "response":output["response"]})
+
