@@ -305,3 +305,14 @@ def update_vul_org_impacto(activo_id, nuevo_impacto):
         return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+# Función para borrar un reporte
+def delete_reporte(id):
+    try:
+        collection = db['reportes']
+        result = collection.delete_one(
+            {"id": id}
+        )
+        return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})

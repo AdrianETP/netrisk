@@ -6,7 +6,7 @@ from db_calls import (
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto,
-    procesar_y_guardar_resultados, post_activos
+    procesar_y_guardar_resultados, post_activos, delete_reporte
     )
 import requests
 from flask_cors import CORS
@@ -194,6 +194,11 @@ def api_update_vul_org_impacto(id):
     data = request.get_json()
     nuevo_impacto = data.get("impact")
     return update_vul_org_impacto(id, nuevo_impacto)
+
+# Endpoint para borrar un reporte
+@app.route('/api/reportes/<int:id>/borrar', methods=['DELETE'])
+def api_delete_report(id):
+    return delete_reporte(id)
 
 
 if __name__ == '__main__':
