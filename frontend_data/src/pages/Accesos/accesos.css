@@ -1,8 +1,9 @@
 .tabla-users {
-          display: flex;
+    display: flex;
     justify-content: center; /* Center horizontally */
     align-items: center;     /* Center vertically */
     width: 70%;
     padding-left: 25px;
-    height: 100px;
+    height: auto;
+    transform: translateY(-50px);
 }

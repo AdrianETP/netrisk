@@ -536,8 +536,15 @@ def generar_controles():
 
                 # Insert summarized controls into the 'controles' collection
                 collection = db['controles']
-                collection.delete_many({})  # Clear existing controls
-                collection.insert_many(summarized_controls)  # Insert new controls
+                #collection.delete_many({})  # Clear existing controls
+                #collection.insert_many(summarized_controls)  # Insert new controls
+                # Insert new controls, verificando si ya existen
+                for control in summarized_controls: 
+                    collection.update_one(
+                        {'code': control['code']},  # Cambia 'control_id' por el campo que identificará cada control
+                        {'$setOnInsert': control},  # Inserta el control si no existe
+                        upsert=True  # Si no existe, lo inserta
+                    )
 
                 return jsonify({"status": 200, "message": "Controls inserted successfully."})
 
