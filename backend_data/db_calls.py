@@ -3,6 +3,9 @@ import logging
 from flask import jsonify
 import google.generativeai as genai
 import os
+from datetime import datetime
+import json
+
 
 genai.configure(api_key=os.environ["API_KEY"])
 
@@ -117,7 +120,7 @@ def update_control_state(code, new_state):
         collection = db['controles']
         result = collection.update_one(
             {"code": code},
-            {"$set": {"state": new_state}}
+            {"$set": {"state": new_state}},
         )
         
         if result.matched_count == 0:
@@ -357,3 +360,205 @@ def update_prox_auditoria(prox_auditoria):
         return jsonify({"status": 200, "message": "Proxima auditoria actualizada exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+
+
+def generar_reporte(fechaInicio, fechaFin):
+    try:
+        # Convert input date strings to datetime objects
+        fechaInicio = datetime.strptime(fechaInicio, '%Y-%m-%d')
+        fechaFin = datetime.strptime(fechaFin, '%Y-%m-%d')
+
+        auditorias_collection = db['auditorias']
+        reportes_collection = db['reportes']
+        
+        # Query to filter audits within the specified date range (inclusive)
+        auditorias = list(auditorias_collection.find({
+            'fecha': {
+                '$gte': fechaInicio.strftime('%Y-%m-%d'),  # Start date (inclusive)
+                '$lte': fechaFin.strftime('%Y-%m-%d')      # End date (inclusive)
+            }
+        }))
+
+        # Generate the report using the filtered auditorias
+        prompt = f"Pretend you are a cybersecurity expert in the education field, generate me an executive report translated to Spanish given the following data about the network scans performed: {auditorias}. Only include the report content, do not include a title."
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        # Prepare report data
+        report_data = {
+            "id": generate_new_report_id(reportes_collection),  # Function to generate new unique report ID
+            "generatedDate": datetime.now().strftime('%Y-%m-%d'),  # Current date for report generation
+            "startDate": fechaInicio.strftime('%Y-%m-%d'),  # Start date of the report
+            "endDate": fechaFin.strftime('%Y-%m-%d'),        # End date of the report
+            "reportContent": response.text  # Assuming response contains the generated report content
+        }
+
+        # Store the report in the reportes collection
+        reportes_collection.insert_one(report_data)  # Save the report
+
+        # Update the reporteGenerado date for the corresponding auditorias
+        auditorias_collection.update_many(
+            {
+                'fecha': {
+                    '$gte': fechaInicio.strftime('%Y-%m-%d'),
+                    '$lte': fechaFin.strftime('%Y-%m-%d')
+                }
+            },
+            {
+                '$set': {
+                    'reporteGenerado': datetime.now().strftime('%Y-%m-%d')  # Update to current date
+                }
+            }
+        )
+
+        return jsonify({
+            "status": 200,
+            "message": "Reporte generado exitosamente"
+        })
+
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+
+def generate_new_report_id(reportes_collection):
+    # Get the last report document based on the highest ID
+    last_report = reportes_collection.find().sort("id", -1).limit(1)
+    last_report_list = list(last_report)  # Convert cursor to list
+
+    # Check if the list is empty and assign the next ID accordingly
+    last_id = last_report_list[0]['id'] if last_report_list else 0
+    return last_id + 1
+
+import typing_extensions as typing
+import pandas as pd
+
+class Control(typing.TypedDict):
+    nombre: str
+    code: str
+    description: str
+
+# Load Excel data for validation
+excel_path = 'controles.xlsx'
+df = pd.read_excel(excel_path)
+
+# Create a dictionary for quick lookup by 'Control Identifier'
+controls_dict = {
+    row['Control Identifier']: {
+        'nombre': row['Control (or Control Enhancement) Name'],
+        'description': row['Control Text']
+    }
+    for _, row in df.iterrows()
+}
+
+def generar_controles():
+    try:
+        # Fetch vulnerabilities from collections
+        collection = db['vul-org']
+        vul_orgs = list(collection.find({}))
+        collection = db['vul-tec']
+        vul_tecs = list(collection.find({}))
+
+        sample_file = {
+        "Retrieved file": "NIST 800-53 PDF",
+        "uri": "https://generativelanguage.googleapis.com/v1beta/files/4hpifh756tx7"
+        }
+
+        sample_file_2 = {
+        "Retrieved file": "NIST Controls PDF",
+        "uri": "https://generativelanguage.googleapis.com/v1beta/files/fnky8vhujzx0"
+        }
+
+        # Step 1: Generate recommended control codes using Gemini
+        prompt = f"You are a cybersecurity expert in the education field, generate me a JSON of around 20 recommended NIST 800-53 control codes to implement using the document provided given the following data about the organization's vulnerabilities: {vul_orgs} {vul_tecs}. Make sure each code corresponds to each control correctly."
+        
+        model = genai.GenerativeModel("gemini-1.5-pro")
+        response = model.generate_content(
+            [sample_file_2["uri"], prompt],
+            generation_config=genai.GenerationConfig(response_mime_type="application/json", response_schema=list[Control])
+        )
+         # Parse the JSON response from Gemini
+        try:
+            controls = json.loads(response.text)  # Convert JSON string to Python object
+            recommended_control_codes = [control['code'] for control in controls]  # Extract control codes
+
+            # Step 2: Validate with Excel data
+            validated_controls = []
+            for control_code in recommended_control_codes:
+                if control_code in controls_dict:
+                    control_info = controls_dict[control_code]
+                    validated_controls.append({
+                        'code': control_code,
+                        'nombre': control_info['nombre'],
+                        'description': control_info['description']
+                    })
+                else:
+                    print(f"Warning: Control code {control_code} not found in Excel data.")
+
+            # Step 3: Summarize and translate each validated control to Spanish
+            summarized_controls = []
+           # Step 3: Summarize and translate all validated controls in a single request
+            # Create a combined prompt with all controls for translation
+            controls_text = "\n".join(
+                f"Control {i + 1}:\nName: {control['nombre']}\nDescription: {control['description']}\n"
+                for i, control in enumerate(validated_controls)
+            )
+
+            prompt = (
+        f"Please summarize and translate to Spanish the following NIST 800-53 control names and descriptions. Make each description shorter than 20 words."
+        f"Return each control as a JSON object with fields 'nombre' and 'description' in the same order as provided. "
+        f"Respond with an array of JSON objects, where each object corresponds to each control given:\n\n{controls_text}"
+            )
+
+            # Send a single request to Gemini for the translation
+            translation_response = model.generate_content(
+                [prompt],
+                generation_config=genai.GenerationConfig(response_mime_type="application/json")
+            )
+
+            try:
+                # Parse the JSON response, assuming it returns a list of translated controls
+                translated_controls = json.loads(translation_response.text)
+
+                # Ensure translated controls match the length of validated_controls
+                if len(translated_controls) == len(validated_controls):
+                    # Map each translated control back to its original code
+                    summarized_controls = [
+                        {
+                            'code': control['code'],
+                            'nombre': translated_control.get('nombre', control['nombre']),
+                            'description': translated_control.get('description', control['description'])
+                        }
+                        for control, translated_control in zip(validated_controls, translated_controls)
+                    ]
+                else:
+                    print("Error: Mismatch in number of translated controls. Using original data for fallback.")
+                    summarized_controls = validated_controls  # Fallback to original data if there's a mismatch
+
+                # Insert summarized controls into the 'controles' collection
+                collection = db['controles']
+                collection.delete_many({})  # Clear existing controls
+                collection.insert_many(summarized_controls)  # Insert new controls
+
+                return jsonify({"status": 200, "message": "Controls inserted successfully."})
+
+            except json.JSONDecodeError:
+                print("Error: Invalid JSON format for translated controls.")
+                summarized_controls = validated_controls  # Fallback to original data if parsing fails
+
+        except json.JSONDecodeError:
+            return jsonify({"status": 400, "error": "Invalid JSON format from Gemini response.", "response": response.text})
+
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+def upload_file():
+    try:
+        # Upload the file and print a confirmation
+        sample_file = genai.upload_file(path="NIST-Table.pdf",
+                                display_name="NIST Controls PDF")
+        file = genai.get_file(name=sample_file.name)
+        return jsonify({"Retrieved file": file.display_name, "uri": sample_file.uri})
+        
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+        
