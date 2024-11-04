@@ -7,7 +7,7 @@ from db_calls import (
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
-    update_prox_auditoria, generar_reporte, generar_controles, upload_file
+    update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org
     )
 from dashboard import ( calculate_netscore, calculate_dashboard, get_dashboard )
 import requests
@@ -244,6 +244,11 @@ def api_calculate_dashboard():
 @app.route('/api/dashboard/get', methods=['GET'])
 def api_get_dashboard():
     return get_dashboard()
+
+# Endpoint para generar (redactar) vulnerabilidades organizacionales
+@app.route('/api/vul-org/generate', methods=['PUT'])
+def api_generar_vul_org():
+    return generar_vul_org()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
