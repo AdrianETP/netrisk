@@ -9,7 +9,7 @@ from db_calls import (
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
     update_prox_auditoria, generar_reporte, generar_controles, upload_file
     )
-from dashboard import ( calculate_netscore )
+from dashboard import ( calculate_netscore, calculate_dashboard, get_dashboard )
 import requests
 from flask_cors import CORS
 
@@ -234,6 +234,16 @@ def api_upload_file():
 @app.route('/api/netscore', methods=['PUT'])
 def api_calculate_netscore():
     return calculate_netscore()
+
+# Endpoint para calcular la info del dashboard
+@app.route('/api/dashboard/calculate', methods=['PUT'])
+def api_calculate_dashboard():
+    return calculate_dashboard()
+
+# Endpoint para traer la info del dashboard
+@app.route('/api/dashboard/get', methods=['GET'])
+def api_get_dashboard():
+    return get_dashboard()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
