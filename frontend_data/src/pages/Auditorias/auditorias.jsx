@@ -89,6 +89,16 @@ function Auditorias() {
 		);
 	};
 
+	const handleIniciarAuditoria = () => {
+		get("api/run-pentest")
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+			});
+	}
+
 	return (
 		<div>
 			<div className="flex flex-col p-6 gap-4 py-2 pb-4">
@@ -127,6 +137,7 @@ function Auditorias() {
 					size="small"
 					endContent={<BoltRoundedIcon fontSize="medium" />}
 					className="px-14 w-1/4"
+					onPress={handleIniciarAuditoria}
 				>
 					Iniciar auditoría
 				</Button>

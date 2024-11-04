@@ -571,8 +571,15 @@ def generar_controles():
 
                 # Insert summarized controls into the 'controles' collection
                 collection = db['controles']
-                collection.delete_many({})  # Clear existing controls
-                collection.insert_many(summarized_controls)  # Insert new controls
+                #collection.delete_many({})  # Clear existing controls
+                #collection.insert_many(summarized_controls)  # Insert new controls
+                # Insert new controls, verificando si ya existen
+                for control in summarized_controls: 
+                    collection.update_one(
+                        {'code': control['code']},  
+                        {'$setOnInsert': control},  # Inserta el control si no existe
+                        upsert=True  # Si no existe, lo inserta
+                    )
 
                 return jsonify({"status": 200, "message": "Controls inserted successfully."})
 
@@ -596,7 +603,74 @@ def upload_file():
         
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+class Vulnerability(typing.TypedDict):
+    email: str
+    vulnerability: str
+    threat: str
+    
+
+def generar_vul_org():
+    try:
+        # Obtener info de roles
+        # Obtener info de personas
+        collection = db['personas']
+        personas = list(collection.find({}))
+        collection = db['roles']
+        roles = list(collection.find({}))
+
+        # Generar prompt
+        prompt = (f"You are a cybersecurity expert in the education field, generate me a JSON of several vulnerabilities in Spanish based on this data about the organization's roles and awareness trainings: {roles} {personas}. The field vulnerability should be less than 15 words. The threat field should be 5 words or less. If the email field does not apply, put N/A")
+
+        # Request a gemini
+        model = genai.GenerativeModel("gemini-1.5-pro")
+        response = model.generate_content(
+            [prompt],
+            generation_config=genai.GenerationConfig(response_mime_type="application/json", response_schema=list[Vulnerability])
+        )
+
+        cleaned_response = response.text.replace("\\", "").replace("\n", "").replace("\\\\","")
+
+
+        # Guardar vulnerabilidades en tabla vul-org y en la ultima auditoria
+        vulnerabilities = json.loads(cleaned_response)
+
+        # Format vulnerabilities for 'organizacionales' field
+        formatted_vulnerabilities = []
+        for index, vul in enumerate(vulnerabilities, start=1):
+            formatted_vulnerabilities.append({
+                "id": index,
+                "email": vul.get("email", "N/A"),
+                "vulnerability": vul.get("vulnerability", ""),
+                "threat": vul.get("threat", ""),
+                "impact": vul.get("impact", "Medio"),  # Default impact if not provided
+                "potentialLoss": vul.get("potentialLoss", "$1,000 - $10,000")  # Default value if not provided
+            })
+
+        collection = db['vul-org']
+        collection.delete_many({})  # Clear existing
+        collection.insert_many(formatted_vulnerabilities)  # Insert new vulnerabilities
+
+        # Remove '_id' field from formatted vulnerabilities for JSON serialization
+        for vul in formatted_vulnerabilities:
+            if "_id" in vul:
+                vul["_id"] = str(vul["_id"])  # Convert _id to string for JSON compatibility
+
+        # Update the latest audit record with these organizational vulnerabilities
+        audit_collection = db['auditorias']
+        latest_audit = audit_collection.find_one(sort=[("id", -1)])
+        if latest_audit:
+            audit_collection.update_one(
+                {"id": latest_audit["id"]},
+                {"$set": {"vulnerabilidades.organizacionales": formatted_vulnerabilities}}
+            )
+
         
+
+
+        return jsonify({"status": 200, "response": formatted_vulnerabilities})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
     
 # Función para borrar un reporte
 def delete_reporte(id):

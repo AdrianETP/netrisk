@@ -1,9 +1,10 @@
-import { SvgIcon, Typography } from "@mui/material";
+import { IconButton, SvgIcon, Typography } from "@mui/material";
 import "./ReporteCard.css";
 import { Button } from "@nextui-org/button";
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import { jsPDF } from "jspdf";
+import { del } from "../../../ApiRequests";
 
 function ReporteCard({ id, generatedDate, startDate, endDate, reportContent }) {
 	// Function to handle PDF generation
@@ -109,12 +110,27 @@ function ReporteCard({ id, generatedDate, startDate, endDate, reportContent }) {
 		doc.save(`Reporte_${id}.pdf`);
 	};
 
+	// Function to handle delete action
+	const handleDelete = () => {
+		console.log(id);
+		const url = `api/reportes/${id}/borrar`;
+		del(url)
+			.then((response) => {
+				// Handle the response if needed
+				console.log("Delete response:", response);
+			})
+			.catch((error) => {
+				console.error("Unexpected error during delete request:", error);
+			});
+	};
 
 	return (
 		<div className="reporte-card-wrapper relative">
 			{/* Ícono de eliminar posicionado en la esquina superior derecha */}
 			<div className="absolute top-5 right-5">
-				<DeleteRoundedIcon />
+				<IconButton aria-label="delete" onClick={handleDelete}>
+					<DeleteRoundedIcon />
+				</IconButton>
 			</div>
 			<div className="flex flex-row flex-wrap content-center items-center gap-4 pb-4">
 				<SvgIcon fontSize="large">
