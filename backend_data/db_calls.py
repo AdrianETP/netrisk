@@ -1,6 +1,6 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 import logging
-from flask import jsonify
+from flask import jsonify, current_app
 import google.generativeai as genai
 import os
 from datetime import datetime
@@ -14,6 +14,41 @@ genai.configure(api_key=os.environ["API_KEY"])
 client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
+
+def delete_database():
+    return
+    # logica para borrar datos
+
+def post_activos():
+    delete_database()
+    # logica para subir activos a base de datos
+    return
+
+def procesar_y_guardar_resultados(resultados_pentest):
+    collection = db["vul-tec"]
+
+    # Verifica si "scan" está presente en el JSON
+    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
+        print("Error: 'scan' no encontrado en los resultados del pentest")
+        return {"error": "'scan' no encontrado en los resultados del pentest"}
+
+    for ip, datos in resultados_pentest["resultado"]["scan"].items():
+        # Extrae la información relevante
+        for puerto, info in datos.get("tcp", {}).items():
+            # Verifica si el estado es "open"
+            if info.get("state") == "open":
+                document = {
+                    "id": datos.get("hostnames")[0]["name"] if datos.get("hostnames") else ip,  # Obtener el nombre del host o la IP
+                    "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
+                    "threat": "Acceso no autorizado",  # Valor por defecto para threat
+                    "impact": "",  # Inicialmente vacío
+                    "potentialLoss": ""  # Inicialmente vacío
+                }
+                # Inserta el documento en la colección
+                collection.insert_one(document)
+
+    return {"message": "Resultados procesados y guardados correctamente"}
+
 
 # Función para serializar documentos y convertir ObjectId a cadena
 def serialize_document(document):
@@ -634,5 +669,16 @@ def generar_vul_org():
 
 
         return jsonify({"status": 200, "response": formatted_vulnerabilities})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
+    
+# Función para borrar un reporte
+def delete_reporte(id):
+    try:
+        collection = db['reportes']
+        result = collection.delete_one(
+            {"id": id}
+        )
+        return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
