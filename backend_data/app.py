@@ -28,7 +28,7 @@ app.logger.setLevel(logging.INFO)
 def home():
     return "Welcome to the Flask app!"
 
-@app.route('/api/scan-network', methods=['POST'])
+@app.route('/api/scan-network', methods=['GET'])
 def api_process_activos():
     try:
         response = requests.get('http://mypentester:5001')
@@ -42,7 +42,7 @@ def api_process_activos():
 
     return jsonify(processed_data), 201
 
-@app.route('/api/run-pentest', methods=['POST'])
+@app.route('/api/run-pentest', methods=['GET'])
 def api_run_pentest():
     try:
         # Ejecuta el pentest y recibe los datos JSON
