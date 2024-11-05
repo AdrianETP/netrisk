@@ -6,7 +6,7 @@ from db_calls import (
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto,
-    procesar_y_guardar_resultados, post_activos, delete_reporte, 
+    procesar_y_guardar_resultados, procesar_y_guardar_activos, delete_reporte, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
     update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org
     )
@@ -28,10 +28,19 @@ app.logger.setLevel(logging.INFO)
 def home():
     return "Welcome to the Flask app!"
 
-@app.route('/api/scan-network')
-def api_post_activos():
-    post_activos()
-    return
+@app.route('/api/scan-network', methods=['POST'])
+def api_process_activos():
+    try:
+        response = requests.get('http://mypentester:5001')
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to connect to pentester", "details": str(e)}), 500
+
+    # Process and store the data in the "activos" collection
+    processed_data = procesar_y_guardar_activos(data)
+
+    return jsonify(processed_data), 201
 
 @app.route('/api/run-pentest', methods=['POST'])
 def api_run_pentest():

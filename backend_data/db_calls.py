@@ -1,4 +1,5 @@
-from pymongo import MongoClient, UpdateOne
+import pymongo
+from pymongo import MongoClient, UpdateOne, DESCENDING
 import logging
 from flask import jsonify, current_app
 import google.generativeai as genai
@@ -15,17 +16,41 @@ client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
 
-def delete_database():
-    return
-    # logica para borrar datos
+def delete_documents(collection):
+    result = collection.delete_many({})  # Deletes all documents in the collection
+    return {"message": f"{result.deleted_count} documents deleted from the collection."}
 
-def post_activos():
-    delete_database()
-    # logica para subir activos a base de datos
-    return
+def procesar_y_guardar_activos(resultados_pentest):
+    collection = db["activos"]
+    delete_documents(collection)
+
+    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
+        print("Error: 'scan' no encontrado en los resultados del pentest")
+        return {"error": "'scan' no encontrado en los resultados del pentest"}
+
+    for ip, datos in resultados_pentest["resultado"]["scan"].items():
+        # Retrieve the auto-incremented id by counting documents in the collection
+        next_id = collection.count_documents({}) + 1
+
+        document = {
+            "id": next_id,
+            "idTabla": f"PC{next_id}",
+            "ip": datos["addresses"].get("ipv4", ""),
+            "macAddress": datos["addresses"].get("mac", "A1:42:B0:A8:71:12"),
+            "device": datos.get("vendor", {}).get("name", "PC"),
+            "operatingSystem": datos.get("os", {}).get("osmatch", {}).get("name", "Linux"),
+            "desc": "",  # Default blank value
+            "impact": "N/A"  # Default blank value
+        }
+        
+        # Insert the document into the collection
+        collection.insert_one(document)
+
+    return {"message": "Resultados procesados y guardados en la colección 'activos' correctamente"}
 
 def procesar_y_guardar_resultados(resultados_pentest):
     collection = db["vul-tec"]
+    delete_documents(collection)
 
     # Verifica si "scan" está presente en el JSON
     if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
@@ -37,11 +62,14 @@ def procesar_y_guardar_resultados(resultados_pentest):
         for puerto, info in datos.get("tcp", {}).items():
             # Verifica si el estado es "open"
             if info.get("state") == "open":
+                dispositivo_nombre = (
+                    datos.get("hostnames")[0].get("name") if datos.get("hostnames") and datos.get("hostnames")[0].get("name") else "dispositivo"
+                )
                 document = {
-                    "id": datos.get("hostnames")[0]["name"] if datos.get("hostnames") else ip,  # Obtener el nombre del host o la IP
+                    "id": dispositivo_nombre,  # Obtener el nombre del host o la IP
                     "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
                     "threat": "Acceso no autorizado",  # Valor por defecto para threat
-                    "impact": "",  # Inicialmente vacío
+                    "impact": "N/A",  # Inicialmente vacío
                     "potentialLoss": ""  # Inicialmente vacío
                 }
                 # Inserta el documento en la colección
