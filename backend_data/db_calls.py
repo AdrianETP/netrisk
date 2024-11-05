@@ -62,8 +62,11 @@ def procesar_y_guardar_resultados(resultados_pentest):
         for puerto, info in datos.get("tcp", {}).items():
             # Verifica si el estado es "open"
             if info.get("state") == "open":
+                dispositivo_nombre = (
+                    datos.get("hostnames")[0].get("name") if datos.get("hostnames") and datos.get("hostnames")[0].get("name") else "dispositivo"
+                )
                 document = {
-                    "id": datos.get("hostnames")[0]["name"] if datos.get("hostnames") else ip,  # Obtener el nombre del host o la IP
+                    "id": dispositivo_nombre,  # Obtener el nombre del host o la IP
                     "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
                     "threat": "Acceso no autorizado",  # Valor por defecto para threat
                     "impact": "N/A",  # Inicialmente vacío
