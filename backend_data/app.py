@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from upload import upload, ask_docs, ask_riesgo, generate_impact
+from upload import upload, ask_docs, ask_amenaza, generate_impact
 from db_calls import (
     get_activos, get_auditorias, get_controles, get_personas, get_roles, 
     get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
@@ -91,11 +91,11 @@ def askaifromdoc():
     return ask_docs(prompt)
 
 
-@app.route('/api/models/askforrisk', methods=['POST'])
+@app.route('/api/models/askforthreat', methods=['POST'])
 def askaifromrisk():
     data = request.get_json()
     prompt = data['prompt']
-    return ask_riesgo(prompt)
+    return ask_amenaza(prompt)
 
 @app.route('/api/models/generateimpact' , methods=['POST'])
 def askaiforimpact():
