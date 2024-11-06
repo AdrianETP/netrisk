@@ -121,7 +121,7 @@ def ask_docs(prompt):
     return jsonify({"status": 200, "response": output['response'], "data": data})
 
 
-def ask_riesgo(prompt):
+def ask_amenaza(prompt):
     try:
         client = chromadb.HttpClient(host="chromadb", port=8000)
         collection = client.get_or_create_collection(name="riesgos")
