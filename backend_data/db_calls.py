@@ -173,7 +173,7 @@ def update_activo_desc(activo_id, nueva_desc):
 
         result_impact = collection.update_one(
             {"id":activo_id},
-            {"$set": {"impact" : impact}}
+            {"$set": {"impact" : impact["result"]}}
         )
 
         
