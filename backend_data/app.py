@@ -1,14 +1,14 @@
 from flask import Flask, jsonify, request
-from upload import upload, ask_docs, ask_riesgo, generate_impact
+from upload import upload, ask_docs, ask_amenaza, generate_impact
 from db_calls import (
     get_activos, get_auditorias, get_controles, get_personas, get_roles, 
     get_vul_org, get_vul_tec, update_activo_desc, update_control_state, 
     update_role_status, update_role_person, update_role_pending_actions,
     update_person_status, update_activo_impacto, update_perdida_tec,
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto,
-    procesar_y_guardar_resultados, post_activos, delete_reporte, 
+    procesar_y_guardar_resultados, procesar_y_guardar_activos, delete_reporte, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
-    update_prox_auditoria, generar_reporte, generar_controles, upload_file
+    update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org
     )
 from fair_analysis import FAIR
 from dashboard import ( calculate_netscore, calculate_dashboard, get_dashboard )
@@ -29,12 +29,21 @@ app.logger.setLevel(logging.INFO)
 def home():
     return "Welcome to the Flask app!"
 
-@app.route('/api/scan-network')
-def api_post_activos():
-    post_activos()
-    return
+@app.route('/api/scan-network', methods=['GET'])
+def api_process_activos():
+    try:
+        response = requests.get('http://mypentester:5001')
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to connect to pentester", "details": str(e)}), 500
 
-@app.route('/api/run-pentest', methods=['POST'])
+    # Process and store the data in the "activos" collection
+    processed_data = procesar_y_guardar_activos(data)
+
+    return jsonify(processed_data), 201
+
+@app.route('/api/run-pentest', methods=['GET'])
 def api_run_pentest():
     try:
         # Ejecuta el pentest y recibe los datos JSON
@@ -83,11 +92,11 @@ def askaifromdoc():
     return ask_docs(prompt)
 
 
-@app.route('/api/models/askforrisk', methods=['POST'])
+@app.route('/api/models/askforthreat', methods=['POST'])
 def askaifromrisk():
     data = request.get_json()
     prompt = data['prompt']
-    return ask_riesgo(prompt)
+    return ask_amenaza(prompt)
 
 @app.route('/api/models/generateimpact' , methods=['POST'])
 def askaiforimpact():
@@ -295,6 +304,11 @@ def api_run_fair():
     secondary_loss_magnitude_n = 100027 
     secondary_loss_event_frequency_q = 4 
     return FAIR(contact_frequency_n, probability_of_acting_n, threat_capacity_q, resistance_strength_q, primary_loss_magnitude_n, secondary_loss_magnitude_n, secondary_loss_event_frequency_q)
+
+# Endpoint para generar (redactar) vulnerabilidades organizacionales
+@app.route('/api/vul-org/generate', methods=['PUT'])
+def api_generar_vul_org():
+    return generar_vul_org()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -1,5 +1,7 @@
-from pymongo import MongoClient, UpdateOne
+import pymongo
+from pymongo import MongoClient, UpdateOne, DESCENDING
 import logging
+from upload import generate_impact
 from flask import jsonify, current_app
 import google.generativeai as genai
 import os
@@ -9,23 +11,46 @@ import json
 
 genai.configure(api_key=os.environ["API_KEY"])
 
-
 # Configura la conexión con MongoDB
 client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
 
-def delete_database():
-    return
-    # logica para borrar datos
+def delete_documents(collection):
+    result = collection.delete_many({})  # Deletes all documents in the collection
+    return {"message": f"{result.deleted_count} documents deleted from the collection."}
 
-def post_activos():
-    delete_database()
-    # logica para subir activos a base de datos
-    return
+def procesar_y_guardar_activos(resultados_pentest):
+    collection = db["activos"]
+    delete_documents(collection)
+
+    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
+        print("Error: 'scan' no encontrado en los resultados del pentest")
+        return {"error": "'scan' no encontrado en los resultados del pentest"}
+
+    for ip, datos in resultados_pentest["resultado"]["scan"].items():
+        # Retrieve the auto-incremented id by counting documents in the collection
+        next_id = collection.count_documents({}) + 1
+
+        document = {
+            "id": next_id,
+            "idTabla": f"PC{next_id}",
+            "ip": datos["addresses"].get("ipv4", ""),
+            "macAddress": datos["addresses"].get("mac", "A1:42:B0:A8:71:12"),
+            "device": datos.get("vendor", {}).get("name", "PC"),
+            "operatingSystem": datos.get("os", {}).get("osmatch", {}).get("name", "Linux"),
+            "desc": "",  # Default blank value
+            "impact": "N/A"  # Default blank value
+        }
+        
+        # Insert the document into the collection
+        collection.insert_one(document)
+
+    return {"message": "Resultados procesados y guardados en la colección 'activos' correctamente"}
 
 def procesar_y_guardar_resultados(resultados_pentest):
     collection = db["vul-tec"]
+    delete_documents(collection)
 
     # Verifica si "scan" está presente en el JSON
     if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
@@ -37,11 +62,14 @@ def procesar_y_guardar_resultados(resultados_pentest):
         for puerto, info in datos.get("tcp", {}).items():
             # Verifica si el estado es "open"
             if info.get("state") == "open":
+                dispositivo_nombre = (
+                    datos.get("hostnames")[0].get("name") if datos.get("hostnames") and datos.get("hostnames")[0].get("name") else "dispositivo"
+                )
                 document = {
-                    "id": datos.get("hostnames")[0]["name"] if datos.get("hostnames") else ip,  # Obtener el nombre del host o la IP
+                    "id": dispositivo_nombre,  # Obtener el nombre del host o la IP
                     "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
                     "threat": "Acceso no autorizado",  # Valor por defecto para threat
-                    "impact": "",  # Inicialmente vacío
+                    "impact": "N/A",  # Inicialmente vacío
                     "potentialLoss": ""  # Inicialmente vacío
                 }
                 # Inserta el documento en la colección
@@ -141,9 +169,19 @@ def update_activo_desc(activo_id, nueva_desc):
             {"id": activo_id},  # Busca el activo por el campo `id`
             {"$set": {"desc": nueva_desc}}  # Actualiza el campo `desc`
         )
+        impact = generate_impact(nueva_desc)
 
-        if result.matched_count == 0:
+        result_impact = collection.update_one(
+            {"id":activo_id},
+            {"$set": {"impact" : impact["result"]}}
+        )
+
+        
+
+        if result.matched_count == 0 or result.matched_count == 0:
             return jsonify({"status": 404, "error": "Activo no encontrado"}), 404
+        
+        
 
         return jsonify({"status": 200, "message": "Descripción actualizada exitosamente"})
     except Exception as e:
@@ -571,8 +609,15 @@ def generar_controles():
 
                 # Insert summarized controls into the 'controles' collection
                 collection = db['controles']
-                collection.delete_many({})  # Clear existing controls
-                collection.insert_many(summarized_controls)  # Insert new controls
+                #collection.delete_many({})  # Clear existing controls
+                #collection.insert_many(summarized_controls)  # Insert new controls
+                # Insert new controls, verificando si ya existen
+                for control in summarized_controls: 
+                    collection.update_one(
+                        {'code': control['code']},  
+                        {'$setOnInsert': control},  # Inserta el control si no existe
+                        upsert=True  # Si no existe, lo inserta
+                    )
 
                 return jsonify({"status": 200, "message": "Controls inserted successfully."})
 
@@ -596,7 +641,74 @@ def upload_file():
         
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
+class Vulnerability(typing.TypedDict):
+    email: str
+    vulnerability: str
+    threat: str
+    
+
+def generar_vul_org():
+    try:
+        # Obtener info de roles
+        # Obtener info de personas
+        collection = db['personas']
+        personas = list(collection.find({}))
+        collection = db['roles']
+        roles = list(collection.find({}))
+
+        # Generar prompt
+        prompt = (f"You are a cybersecurity expert in the education field, generate me a JSON of several vulnerabilities in Spanish based on this data about the organization's roles and awareness trainings: {roles} {personas}. The field vulnerability should be less than 15 words. The threat field should be 5 words or less. If the email field does not apply, put N/A")
+
+        # Request a gemini
+        model = genai.GenerativeModel("gemini-1.5-pro")
+        response = model.generate_content(
+            [prompt],
+            generation_config=genai.GenerationConfig(response_mime_type="application/json", response_schema=list[Vulnerability])
+        )
+
+        cleaned_response = response.text.replace("\\", "").replace("\n", "").replace("\\\\","")
+
+
+        # Guardar vulnerabilidades en tabla vul-org y en la ultima auditoria
+        vulnerabilities = json.loads(cleaned_response)
+
+        # Format vulnerabilities for 'organizacionales' field
+        formatted_vulnerabilities = []
+        for index, vul in enumerate(vulnerabilities, start=1):
+            formatted_vulnerabilities.append({
+                "id": index,
+                "email": vul.get("email", "N/A"),
+                "vulnerability": vul.get("vulnerability", ""),
+                "threat": vul.get("threat", ""),
+                "impact": vul.get("impact", "Medio"),  # Default impact if not provided
+                "potentialLoss": vul.get("potentialLoss", "$1,000 - $10,000")  # Default value if not provided
+            })
+
+        collection = db['vul-org']
+        collection.delete_many({})  # Clear existing
+        collection.insert_many(formatted_vulnerabilities)  # Insert new vulnerabilities
+
+        # Remove '_id' field from formatted vulnerabilities for JSON serialization
+        for vul in formatted_vulnerabilities:
+            if "_id" in vul:
+                vul["_id"] = str(vul["_id"])  # Convert _id to string for JSON compatibility
+
+        # Update the latest audit record with these organizational vulnerabilities
+        audit_collection = db['auditorias']
+        latest_audit = audit_collection.find_one(sort=[("id", -1)])
+        if latest_audit:
+            audit_collection.update_one(
+                {"id": latest_audit["id"]},
+                {"$set": {"vulnerabilidades.organizacionales": formatted_vulnerabilities}}
+            )
+
         
+
+
+        return jsonify({"status": 200, "response": formatted_vulnerabilities})
+    except Exception as e:
+        return jsonify({"status": 500, "error": str(e)})
     
 # Función para borrar un reporte
 def delete_reporte(id):

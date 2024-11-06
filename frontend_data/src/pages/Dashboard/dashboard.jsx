@@ -153,7 +153,7 @@ function Dashboard() {
 				/>
 			</div>
 			<div className="card-background-dashboard">
-				<Typography>Porcentaje de remediación de vulnerabilidades</Typography>
+				<Typography>Porcentaje de remediación de vulnerabilidades</Typography> 
 				<LineChart
 					xAxis={[
 						{

@@ -50,6 +50,16 @@ function Activos() {
 	const editableColumns = ["desc"];
 	const dropdownOptions = [""];
 
+	const handleIniciarEscaneo = () => {
+		get("api/scan-network")
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+			});
+	}
+
 	return (
 		<div>
 			<div className="activos-top">
@@ -77,6 +87,7 @@ function Activos() {
 							color="default"
 							endContent={<LanguageOutlinedIcon />}
 							className="px-6"
+							onPress={handleIniciarEscaneo}
 						>
 							Iniciar escaneo de red
 						</Button>

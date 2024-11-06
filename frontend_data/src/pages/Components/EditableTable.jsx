@@ -45,8 +45,8 @@ import { ToastContainer, toast } from "react-toastify"; // Importa ToastContaine
 import { put } from "../../ApiRequests.js";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
-
-
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase.js";
 
 function EditableTable({
 	columns,
@@ -63,8 +63,7 @@ function EditableTable({
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
 	const [isCopied, setIsCopied] = useState(false); // State to track if the value is copied
-const location = useLocation();
-	
+	const location = useLocation();
 
 	useEffect(() => {
 		setData(initialData);
@@ -115,6 +114,23 @@ const location = useLocation();
 			endpoint = `api/roles/${rowId}/estatus`;
 		} else if (location.pathname === "/personas") {
 			endpoint = `api/personas/${rowId}/estatus`;
+		} else if (location.pathname === "/accesos") {		
+			const userId = rowId; // Unique identifier for the user
+			const updates = {
+				role: newValue.target.value,
+			};
+			const userDocRef = doc(db, "users", userId);
+
+			updateDoc(userDocRef, updates)
+				.then(() => {
+					console.log("Document updated successfully!");
+					toast.success("¡Rol actualizado exitosamente!"); // Shows success toast
+				})
+				.catch((error) => {
+					console.error("Error updating document:", error);
+					toast.error("Error al actualizar rol"); // Shows error toast
+				});
+			return;
 		} else {
 			console.log("Route error");
 		}
@@ -136,7 +152,6 @@ const location = useLocation();
 			}
 		);
 	};
-
 
 	const handleCopyToClipboard = (value) => {
 		navigator.clipboard.writeText(value).then(() => {
@@ -240,88 +255,88 @@ const location = useLocation();
 				</div>
 			);
 		}
-			if (isEditable) {
-				// Check if the column should render a modal button instead of a dropdown
-				if (column.key === "pendingActions") {
-					return (
-						<div style={{ display: "flex", alignItems: "center" }}>
-							<Button
-								fullWidth
-								size="sm"
-								variant="bordered"
-								className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
-								onClick={() => handleOpenModal3(item)}
-							>
-								{item.pendingActions ? (
-									<>
-										Ver
-										<VisibilityRoundedIcon
-											style={{ height: "auto", width: "15px" }}
-										/>
-									</>
-								) : (
-									<>
-										Agregar
-										<AddIcon style={{}} />
-									</>
-								)}
-							</Button>
-						</div>
-					);
-				}
-				if (column.key === "desc") {
-					// Replace with the actual key for the column
-					return (
-						<div style={{ display: "flex", alignItems: "center" }}>
-							<Button
-								fullWidth
-								size="sm"
-								variant="bordered"
-								className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
-								onClick={() => handleModalOpen(item)}
-							>
-								{item.desc ? (
-									<>
-										Ver
-										<VisibilityRoundedIcon
-											style={{ height: "auto", width: "15px" }}
-										/>
-									</>
-								) : (
-									<>
-										Agregar
-										<AddIcon style={{}} />
-									</>
-								)}
-							</Button>
-						</div>
-					);
-				}
-
-				const options = dropdownOptions[column.key] || [];
+		if (isEditable) {
+			// Check if the column should render a modal button instead of a dropdown
+			if (column.key === "pendingActions") {
 				return (
-					<Select
-						selectedKey={
-							(stateStyles[item[column.key]]?.icon || null) + item[column.key]
-						}
-						placeholder={item[column.key] || "Seleccionar"}
-						size="sm"
-						onChange={(key) => handleSelectChange(item.id, column.key, key)}
-						className="capitalize"
-						startContent={stateStyles[item[column.key]]?.icon || null}
-					>
-						{options.map((option) => (
-							<SelectItem
-								key={option}
-								value={option}
-								startContent={stateStyles[option]?.icon || null}
-							>
-								{option}
-							</SelectItem>
-						))}
-					</Select>
+					<div style={{ display: "flex", alignItems: "center" }}>
+						<Button
+							fullWidth
+							size="sm"
+							variant="bordered"
+							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+							onClick={() => handleOpenModal3(item)}
+						>
+							{item.pendingActions ? (
+								<>
+									Ver
+									<VisibilityRoundedIcon
+										style={{ height: "auto", width: "15px" }}
+									/>
+								</>
+							) : (
+								<>
+									Agregar
+									<AddIcon style={{}} />
+								</>
+							)}
+						</Button>
+					</div>
 				);
 			}
+			if (column.key === "desc") {
+				// Replace with the actual key for the column
+				return (
+					<div style={{ display: "flex", alignItems: "center" }}>
+						<Button
+							fullWidth
+							size="sm"
+							variant="bordered"
+							className="border-[#0DD4CE] text-[#0DD4CE] hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
+							onClick={() => handleModalOpen(item)}
+						>
+							{item.desc ? (
+								<>
+									Ver
+									<VisibilityRoundedIcon
+										style={{ height: "auto", width: "15px" }}
+									/>
+								</>
+							) : (
+								<>
+									Agregar
+									<AddIcon style={{}} />
+								</>
+							)}
+						</Button>
+					</div>
+				);
+			}
+
+			const options = dropdownOptions[column.key] || [];
+			return (
+				<Select
+					selectedKey={
+						(stateStyles[item[column.key]]?.icon || null) + item[column.key]
+					}
+					placeholder={item[column.key] || "Seleccionar"}
+					size="sm"
+					onChange={(key) => handleSelectChange(item.id, column.key, key)}
+					className="capitalize"
+					startContent={stateStyles[item[column.key]]?.icon || null}
+				>
+					{options.map((option) => (
+						<SelectItem
+							key={option}
+							value={option}
+							startContent={stateStyles[option]?.icon || null}
+						>
+							{option}
+						</SelectItem>
+					))}
+				</Select>
+			);
+		}
 
 		return (
 			<div
@@ -418,7 +433,7 @@ const location = useLocation();
 						wrapper: "bg-[#2D2D2D]",
 						th: "bg-[#404040] text-color-[#F6F6F6] font-semibold text-xs",
 						td: "font-normal text-xs max-w-[180px]",
-						base: `${baseHeight} overflow-auto`, // Corrected string concatenation
+						base: `${baseHeight} overflow-auto`, 
 						table: "min-h-[120px] ",
 					}}
 				>

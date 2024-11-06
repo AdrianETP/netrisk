@@ -40,8 +40,16 @@ const LoginPage = () => {
 
 			if (docSnap.exists()) {
 				const userData = docSnap.data();
-				login(userData); // Store user data in context
-				navigate("/dashboard"); // Navigate to the dashboard after successful login
+
+				// Check if user has 'admin' or 'user' role
+				if (userData.role === "admin" || userData.role === "user") {
+					login(userData); // Store user data in context
+					navigate("/dashboard"); // Navigate to the dashboard after successful login
+				} else {
+					toast.error(
+						"Error al iniciar sesión, por favor revisa tus credenciales."
+					);
+				}
 			} else {
 				console.log("No se encontraron datos del usuario");
 			}
@@ -52,6 +60,7 @@ const LoginPage = () => {
 			console.error(err);
 		}
 	};
+
 
 	return (
 		<div className="loginBackground">
