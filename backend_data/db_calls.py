@@ -1,6 +1,7 @@
 import pymongo
 from pymongo import MongoClient, UpdateOne, DESCENDING
 import logging
+from upload import generate_impact
 from flask import jsonify, current_app
 import google.generativeai as genai
 import os
@@ -9,7 +10,6 @@ import json
 
 
 genai.configure(api_key=os.environ["API_KEY"])
-
 
 # Configura la conexión con MongoDB
 client = MongoClient('mongodb://mymongo:27017/')
@@ -169,9 +169,19 @@ def update_activo_desc(activo_id, nueva_desc):
             {"id": activo_id},  # Busca el activo por el campo `id`
             {"$set": {"desc": nueva_desc}}  # Actualiza el campo `desc`
         )
+        impact = generate_impact(nueva_desc)
 
-        if result.matched_count == 0:
+        result_impact = collection.update_one(
+            {"id":activo_id},
+            {"$set": {"impact" : impact["result"]}}
+        )
+
+        
+
+        if result.matched_count == 0 or result.matched_count == 0:
             return jsonify({"status": 404, "error": "Activo no encontrado"}), 404
+        
+        
 
         return jsonify({"status": 200, "message": "Descripción actualizada exitosamente"})
     except Exception as e:
