@@ -4,3 +4,7 @@ ollama
 PyMUPDF
 pymongo
 flask-cors
+google-generativeai
+datetime
+pandas
+openpyxl
