@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SmallStatsCard from "./Components/SmallStatsCard";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
@@ -13,91 +13,98 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import ControlCard from "./Components/ControlCard";
+import { get } from "../../ApiRequests.js";
 
 function Controles() {
-	const stats = [
-		{
-			title: "Implementados",
-			icon: (
-				<CheckCircleOutlineRoundedIcon fontSize="14px" htmlColor="#17C964" />
-			),
-			value: "100",
-		},
-		{
-			title: "En proceso",
-			icon: <AccessTimeRoundedIcon fontSize="14px" htmlColor="#F5A524" />,
-			value: "100",
-		},
-		{
-			title: "En revisión",
-			icon: <VisibilityOutlinedIcon fontSize="14px" htmlColor="#006FEE" />,
-			value: "100",
-		},
-		{
-			title: "Sin implementar",
-			icon: <HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />,
-			value: "100",
-		},
-		{
-			title: "Excluidos",
-			icon: (
-				<RemoveCircleOutlineRoundedIcon fontSize="14px" htmlColor="#E4E4E7" />
-			),
-			value: "100",
-		},
-	];
-
-	const controles = [
-		{
-			nombre: "Control de Acceso",
-			code: "AC-1",
-			description:
-				"Establecer y administrar políticas de acceso para sistemas y datos.",
-			state: "Implementado",
-		},
-		{
-			nombre: "Conciencia y Entrenamiento",
-			code: "AT-2",
-			description: "Proporcionar entrenamiento de seguridad para el personal.",
-			state: "En proceso",
-		},
-		{
-			nombre: "Protección de Datos",
-			code: "SC-28",
-			description: "Proteger datos en almacenamiento y en tránsito.",
-			state: "En revisión",
-		},
-		{
-			nombre: "Monitoreo de Actividades",
-			code: "AU-6",
-			description:
-				"Revisar registros de auditoría para detectar actividad anómala.",
-			state: "Sin implementar",
-		},
-		{
-			nombre: "Respaldo de Información",
-			code: "CP-9",
-			description: "Realizar copias de seguridad periódicas de la información.",
-			state: "Excluido",
-		},
-	];
-
+	const [controls, setControls] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [stats, setStats] = useState({
+		implemented: 0,
+		inProcess: 0,
+		inReview: 0,
+		notImplemented: 0,
+		excluded: 0,
+	});
 	const [inputValue, setInputValue] = useState("");
-	const filteredControles = controles.filter((control) =>
+
+	useEffect(() => {
+		// Fetch data from the API
+		get("api/controles")
+			.then((result) => {
+				setControls(result.data);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
+	const calculateStats = () => {
+		const newStats = {
+			implemented: controls.filter(
+				(control) => control.state === "Implementado"
+			).length,
+			inProcess: controls.filter((control) => control.state === "En proceso")
+				.length,
+			inReview: controls.filter((control) => control.state === "En revisión")
+				.length,
+			notImplemented: controls.filter(
+				(control) => control.state === "Sin implementar"
+			).length,
+			excluded: controls.filter((control) => control.state === "Excluido")
+				.length,
+		};
+		setStats(newStats);
+	};
+
+	useEffect(() => {
+		// Calculate stats dynamically whenever 'controls' changes
+		calculateStats();
+	}, [controls]);
+
+	const filteredControles = controls.filter((control) =>
 		control.nombre.toLowerCase().includes(inputValue.toLowerCase())
 	);
 
 	return (
 		<div className="controles-container-full pb-6">
 			<div className="flex flex-row gap-4 p-4 ">
-				{stats.map((stat, index) => (
-					<SmallStatsCard
-						key={index}
-						text={stat.title}
-						icon={stat.icon}
-						stat={stat.value}
-					/>
-				))}
+				<SmallStatsCard
+					text="Implementados"
+					icon={
+						<CheckCircleOutlineRoundedIcon
+							fontSize="14px"
+							htmlColor="#17C964"
+						/>
+					}
+					stat={stats.implemented}
+				/>
+				<SmallStatsCard
+					text="En proceso"
+					icon={<AccessTimeRoundedIcon fontSize="14px" htmlColor="#F5A524" />}
+					stat={stats.inProcess}
+				/>
+				<SmallStatsCard
+					text="En revisión"
+					icon={<VisibilityOutlinedIcon fontSize="14px" htmlColor="#006FEE" />}
+					stat={stats.inReview}
+				/>
+				<SmallStatsCard
+					text="Sin implementar"
+					icon={<HighlightOffRoundedIcon fontSize="14px" htmlColor="#F31260" />}
+					stat={stats.notImplemented}
+				/>
+				<SmallStatsCard
+					text="Excluidos"
+					icon={
+						<RemoveCircleOutlineRoundedIcon
+							fontSize="14px"
+							htmlColor="#E4E4E7"
+						/>
+					}
+					stat={stats.excluded}
+				/>
 			</div>
 			<div className="recomendacion-controles-container">
 				<div className="recomendacion-controles-titulo">
@@ -115,7 +122,7 @@ function Controles() {
 				</div>
 				<Autocomplete
 					disablePortal
-					options={controles}
+					options={controls}
 					getOptionLabel={(option) => option.nombre}
 					onInputChange={(event, newInputValue) => {
 						setInputValue(newInputValue);
@@ -159,7 +166,7 @@ function Controles() {
 					)}
 				/>
 			</div>
-			<div className="flex flex-row px-6 gap-6 flex-wrap	">
+			<div className="flex flex-row px-6 gap-6 flex-wrap">
 				{filteredControles.map((control, index) => (
 					<ControlCard
 						key={index}
@@ -167,6 +174,7 @@ function Controles() {
 						code={control.code}
 						description={control.description}
 						initialState={control.state}
+						
 					/>
 				))}
 			</div>

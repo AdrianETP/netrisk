@@ -2,3 +2,5 @@ Flask==2.3.2
 chromadb
 ollama
 PyMUPDF
+pymongo
+flask-cors

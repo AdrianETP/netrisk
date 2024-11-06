@@ -8,9 +8,14 @@ services:
       - "5000:5000"
     depends_on:
       - chromadb
+      - mongo  # Añadir dependencia a MongoDB
     hostname: myflask
     networks:
       - default
+    volumes:
+      - ./backend_data:/app
+    environment:
+      - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
 
   mongo:
     image: mongo:latest
@@ -22,7 +27,7 @@ services:
     networks:
       - default
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.16
     ports:
       - "8000:8000"
     environment:
@@ -31,17 +36,17 @@ services:
     volumes:
       - chroma_data:/chroma/chroma
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 5s
     hostname: mychroma
     networks:
       - default
   pentesting_data:
     build: pentesting_data
     container_name: pentester
-    hostname: pentester
     ports:
       - "5001:5001"
     tty: true

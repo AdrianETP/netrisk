@@ -41,6 +41,11 @@ import {
 import { Typography, Box, Grid } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import { ToastContainer, toast } from "react-toastify"; // Importa ToastContainer y toast
+import { put } from "../../ApiRequests.js";
+import "react-toastify/dist/ReactToastify.css";
+import { useLocation } from "react-router-dom";
+
 
 
 function EditableTable({
@@ -58,6 +63,8 @@ function EditableTable({
 	const [selectedItem, setSelectedItem] = useState(null);
 	const [searchQuery, setSearchQuery] = useState(""); // New state for search query
 	const [isCopied, setIsCopied] = useState(false); // State to track if the value is copied
+const location = useLocation();
+	
 
 	useEffect(() => {
 		setData(initialData);
@@ -102,12 +109,34 @@ function EditableTable({
 	};
 
 	const handleSelectChange = (rowId, columnKey, newValue) => {
-		setData((prevData) =>
-			prevData.map((item) =>
-				item.id === rowId ? { ...item, [columnKey]: newValue } : item
-			)
+		// Determine the endpoint based on the current route
+		let endpoint;
+		if (location.pathname === "/roles") {
+			endpoint = `api/roles/${rowId}/estatus`;
+		} else if (location.pathname === "/personas") {
+			endpoint = `api/personas/${rowId}/estatus`;
+		} else {
+			console.log("Route error");
+		}
+
+		put(
+			endpoint,
+			{ status: newValue.target.value },
+			() => {
+				setData((prevData) =>
+					prevData.map((item) =>
+						item.id === rowId ? { ...item, [columnKey]: newValue } : item
+					)
+				);
+				toast.success("¡Información guardada correctamente!"); // Shows success toast
+			},
+			() => {
+				console.error("Error al guardar la información");
+				toast.error("Error al guardar la información"); // Shows error toast
+			}
 		);
 	};
+
 
 	const handleCopyToClipboard = (value) => {
 		navigator.clipboard.writeText(value).then(() => {
@@ -594,12 +623,23 @@ function EditableTable({
 										variant="bordered"
 										className="text-[#0DD4CE] border-[#0DD4CE] border-2 hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
 										onPress={() => {
-											setData((prevData) =>
-												prevData.map((item) =>
-													item.id === selectedItem.id ? selectedItem : item
-												)
+											put(
+												`/api/activos/${selectedItem["id"]}/desc`,
+												{ desc: selectedItem["desc"] },
+												() => {
+													setData((prevData) =>
+														prevData.map((item) =>
+															item.id === selectedItem.id ? selectedItem : item
+														)
+													);
+													toast.success("¡Descripción guardada correctamente!"); // Muestra el toast
+													onClose(); // Cierra el modal después de guardar
+												},
+												() => {
+													console.error("Error al guardar la descripción");
+													toast.error("Error al guardar la descripción"); // Muestra un mensaje de error
+												}
 											);
-											onClose(); // Close the modal after saving
 										}}
 									>
 										<b>Guardar</b>
@@ -864,12 +904,23 @@ function EditableTable({
 										variant="bordered"
 										className="text-[#0DD4CE] border-[#0DD4CE] border-2 hover:text-[#2D2D2D] hover:bg-[#0DD4CE]"
 										onPress={() => {
-											setData((prevData) =>
-												prevData.map((item) =>
-													item.id === selectedItem.id ? selectedItem : item
-												)
+											put(
+												`/api/roles/${selectedItem["id"]}/pending-actions`,
+												{ pendingActions: selectedItem["pendingActions"] },
+												() => {
+													setData((prevData) =>
+														prevData.map((item) =>
+															item.id === selectedItem.id ? selectedItem : item
+														)
+													);
+													toast.success("¡Información guardada correctamente!"); // Muestra el toast
+													onClose(); // Cierra el modal después de guardar
+												},
+												() => {
+													console.error("Error al guardar la información");
+													toast.error("Error al guardar la información"); // Muestra un mensaje de error
+												}
 											);
-											onClose(); // Close the modal after saving
 										}}
 									>
 										<b>Guardar</b>
@@ -879,6 +930,7 @@ function EditableTable({
 						)}
 					</ModalContent>
 				</Modal>
+				<ToastContainer />
 			</div>
 		</>
 	);

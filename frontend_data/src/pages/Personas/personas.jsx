@@ -7,90 +7,27 @@ import { Typography } from "@mui/material";
 import { Progress } from "@nextui-org/react";
 import "../Roles/roles.css";
 import EditableTable from "../Components/EditableTable.jsx";
+import { get } from "../../ApiRequests.js";
+import { useEffect, useState } from "react";
 
 function Personas() {
-	const trainingData = [
-		{
-			id: 1,
-			nombre: "Juan Pérez",
-			correo: "juan.perez@example.com",
-			departamento: "TI",
-			status: "Completada",
-			fechaCapacitacion: "2024-10-18",
-		},
-		{
-			id: 2,
-			nombre: "María López",
-			correo: "maria.lopez@example.com",
-			departamento: "Recursos Humanos",
-			status: "Completada",
-			fechaCapacitacion: "2024-10-17",
-		},
-		{
-			id: 3,
-			nombre: "Carlos Gómez",
-			correo: "carlos.gomez@example.com",
-			departamento: "TI",
-			status: "En proceso",
-			fechaCapacitacion: "2024-10-19",
-		},
-		{
-			id: 4,
-			nombre: "Laura Martínez",
-			correo: "laura.martinez@example.com",
-			departamento: "Recursos Humanos",
-			status: "Faltante",
-			fechaCapacitacion: "2024-10-15",
-		},
-		{
-			id: 5,
-			nombre: "Pedro Ramírez",
-			correo: "pedro.ramirez@example.com",
-			departamento: "Seguridad",
-			status: "Faltante",
-			fechaCapacitacion: "2024-10-16",
-		},
-		{
-			id: 6,
-			nombre: "Juan Pérez",
-			correo: "juan.perez@example.com",
-			departamento: "TI",
-			status: "Completada",
-			fechaCapacitacion: "2024-10-18",
-		},
-		{
-			id: 7,
-			nombre: "María López",
-			correo: "maria.lopez@example.com",
-			departamento: "Recursos Humanos",
-			status: "Completada",
-			fechaCapacitacion: "2024-10-17",
-		},
-		{
-			id: 8,
-			nombre: "Carlos Gómez",
-			correo: "carlos.gomez@example.com",
-			departamento: "TI",
-			status: "En proceso",
-			fechaCapacitacion: "2024-10-19",
-		},
-		{
-			id: 9,
-			nombre: "Laura Martínez",
-			correo: "laura.martinez@example.com",
-			departamento: "Recursos Humanos",
-			status: "Faltante",
-			fechaCapacitacion: "2024-10-15",
-		},
-		{
-			id: 10,
-			nombre: "Pedro Ramírez",
-			correo: "pedro.ramirez@example.com",
-			departamento: "Seguridad",
-			status: "Faltante",
-			fechaCapacitacion: "2024-10-16",
-		},
-	];
+	const [trainingData, setTrainingData] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		get("api/personas")
+			.then((result) => {
+				setTrainingData(result.data);
+				setIsLoading(false);
+				console.log(result.data);
+			})
+			.catch((error) => {
+				console.error("Ocurrió un error:", error);
+				setIsLoading(false);
+			});
+	}, []);
+
+	
 
 	const columns = [
 		{ key: "nombre", label: "NOMBRE" },
