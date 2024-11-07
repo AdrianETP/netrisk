@@ -13,6 +13,93 @@ Author: Ramón Gómez
 Date: 2024-10-20
 """
 
+class Threat:
+    def __init__(self, name, contact_frequency_n, probability_of_acting_n, threat_capacity_q,
+                 resistance_strength_q, primary_loss_magnitude_n, secondary_loss_magnitude_n,
+                 secondary_loss_event_frequency_q):
+        self.name = name
+        self.contact_frequency_n = contact_frequency_n
+        self.probability_of_acting_n = probability_of_acting_n
+        self.threat_capacity_q = threat_capacity_q
+        self.resistance_strength_q = resistance_strength_q
+        self.primary_loss_magnitude_n = primary_loss_magnitude_n
+        self.secondary_loss_magnitude_n = secondary_loss_magnitude_n
+        self.secondary_loss_event_frequency_q = secondary_loss_event_frequency_q
+
+    def mostrar_info(self):
+        print(f"Name: {self.name}")
+        print(f"Contact Frequency (n): {self.contact_frequency_n}")
+        print(f"Probability of Acting (n): {self.probability_of_acting_n}")
+        print(f"Threat Capacity (q): {self.threat_capacity_q}")
+        print(f"Resistance Strength (q): {self.resistance_strength_q}")
+        print(f"Primary Loss Magnitude (n): {self.primary_loss_magnitude_n}")
+        print(f"Secondary Loss Magnitude (n): {self.secondary_loss_magnitude_n}")
+        print(f"Secondary Loss Event Frequency (q): {self.secondary_loss_event_frequency_q}")
+
+# Creación de objetos para cada amenaza
+phishing = Threat(
+    name="Phishing", 
+    contact_frequency_n=1000, 
+    probability_of_acting_n=0.8, 
+    threat_capacity_q=2, 
+    resistance_strength_q=3,  #"escaneo nivel organizacional", 
+    primary_loss_magnitude_n=1300000, 
+    secondary_loss_magnitude_n=600000, 
+    secondary_loss_event_frequency_q=3
+)
+
+ddos = Threat(
+    name="DDoS", 
+    contact_frequency_n=150, 
+    probability_of_acting_n=0.4, 
+    threat_capacity_q=2, 
+    resistance_strength_q=3, #"escaneo nivel sistema", 
+    primary_loss_magnitude_n=250000, 
+    secondary_loss_magnitude_n=300000, 
+    secondary_loss_event_frequency_q=4
+)
+
+ransomware = Threat(
+    name="Ransomware", 
+    contact_frequency_n=60, 
+    probability_of_acting_n=0.8, 
+    threat_capacity_q=4, 
+    resistance_strength_q=3, #"escaneo nivel sistema", 
+    primary_loss_magnitude_n=1500000, 
+    secondary_loss_magnitude_n=700000, 
+    secondary_loss_event_frequency_q=4
+)
+
+brute_force1 = Threat(
+    name="Brute Force", 
+    contact_frequency_n=1000, 
+    probability_of_acting_n=0.9, 
+    threat_capacity_q=4, 
+    resistance_strength_q=3, #"escaneo nivel sistema", 
+    primary_loss_magnitude_n=250000, 
+    secondary_loss_magnitude_n=150000, 
+    secondary_loss_event_frequency_q=2
+)
+
+brute_force2 = Threat(
+    name="Brute Force", 
+    contact_frequency_n=1000, 
+    probability_of_acting_n=0.9, 
+    threat_capacity_q=4, 
+    resistance_strength_q=3, #"escaneo nivel sistema", 
+    primary_loss_magnitude_n=250000, 
+    secondary_loss_magnitude_n=150000, 
+    secondary_loss_event_frequency_q=2
+)
+
+threat_db = {
+    "phishing": phishing,
+    "ddos": ddos,
+    "ransomware": ransomware,
+    "brute force 1": brute_force1,
+    "brute force 2": brute_force2
+}
+
 #TEF CALCULATION
 def calculate_contact_frequency(contact_frequency_n):
     contact_frequency_q = 0
@@ -157,7 +244,7 @@ risk_matrix = [
     [2, 3, 4, 4, 4]
 ]
 
-def FAIR(contact_frequency_n, probability_of_acting_n, threat_capacity_q, resistance_strength_q, primary_loss_magnitude_n, secondary_loss_magnitude_n, secondary_loss_event_frequency_q):
+def FAIR(threat_name, contact_frequency_n, probability_of_acting_n, threat_capacity_q, resistance_strength_q, primary_loss_magnitude_n, secondary_loss_magnitude_n, secondary_loss_event_frequency_q):
     #Tier escale 
     to_tier = {
         0: "VL",
@@ -209,13 +296,18 @@ def FAIR(contact_frequency_n, probability_of_acting_n, threat_capacity_q, resist
     risk = risk_matrix[loss_magnitude_q][LEF]
     
     result = {
-        "Loss Magnitude Tier": to_tier[loss_magnitude_q],
-        "Loss Magnitude Range": f"${loss_magnitude_n[0]:,} - ${loss_magnitude_n[1]:,}",
-        "Average Loss Magnitude": primary_loss_magnitude_n + secondary_loss_magnitude_n,
-        "Risk Tier": to_tier[risk]
+        "threat_name": threat_name,
+        "loss_magnitude_tier": to_tier[loss_magnitude_q],
+        "loss_magnitude_range": f"${loss_magnitude_n[0]:,} - ${loss_magnitude_n[1]:,}",
+        "average_loss_magnitude": f"${primary_loss_magnitude_n + secondary_loss_magnitude_n}",
+        "risk_tier": to_tier[risk]
     }
     
     return jsonify({"status": 200, "data": result})
+
+def fair_analysis(threat_name):
+    threat = threat_db[threat_name]
+    return FAIR(threat.name, threat.contact_frequency_n, threat.probability_of_acting_n, threat.threat_capacity_q, threat.resistance_strength_q, threat.primary_loss_magnitude_n, threat.secondary_loss_magnitude_n, threat.secondary_loss_event_frequency_q)
 
 def main():
     print("Caso: Robo de credenciales por parte de un empleado")
