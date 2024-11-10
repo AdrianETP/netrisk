@@ -28,6 +28,18 @@ app.logger.setLevel(logging.INFO)
 def home():
     return "Welcome to the Flask app!"
 
+@app.route('/api/main-scan' , methods=['GET'])
+def main_scan():
+    try:
+        response = requests.get('http://mypentester:5001')
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to connect to pentester", "details": str(e)}), 500
+    processed_data=procesar_y_guardar_activos(data)
+    processed_results=procesar_y_guardar_resultados(data)
+    return jsonify({"data":processed_data, "results":processed_results})
+
 @app.route('/api/scan-network', methods=['GET'])
 def api_process_activos():
     try:

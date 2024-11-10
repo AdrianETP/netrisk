@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   flask:
     build:
@@ -8,12 +6,12 @@ services:
       - "5000:5000"
     depends_on:
       - chromadb
-      - mongo  # Añadir dependencia a MongoDB
+      - mongo # Añadir dependencia a MongoDB
     hostname: myflask
     networks:
       - default
     environment:
-      - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
+      - MONGO_URI=mongodb://mymongo:27017 # Variable de entorno para MongoDB
     env_file:
       - backend_data/.env
 
@@ -52,14 +50,12 @@ services:
     tty: true
     hostname: mypentester
     networks:
-      - ubuntu_network
-      - default
+      ubuntu_network:
+        ipv4_address: 192.168.100.4
+      default:
+        ipv4_address: 192.168
     cap_add:
       - NET_RAW # Allow raw socket access
-  kali_tester:
-    image: kalilinux/kali-rolling
-    tty: true
-    container_name: kali
   react-frontend:
     build:
       context: ./frontend_data # Make sure this path is correct
