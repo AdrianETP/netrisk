@@ -10,6 +10,7 @@ from db_calls import (
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
     update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org
     )
+from fair_analysis import fair_analysis as FAIR
 from dashboard import ( calculate_netscore, calculate_dashboard, get_dashboard )
 import requests
 from flask_cors import CORS
@@ -291,6 +292,12 @@ def api_get_dashboard():
 def api_delete_report(id):
     return delete_reporte(id)
 
+# Endpoint para ejecutar el modelo FAIR
+@app.route('/api/fair', methods=['POST'])
+def api_run_fair():
+    data = request.get_json()
+    threat = data['threat']
+    return FAIR(threat.lower())
 
 # Endpoint para generar (redactar) vulnerabilidades organizacionales
 @app.route('/api/vul-org/generate', methods=['PUT'])
