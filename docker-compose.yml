@@ -6,12 +6,12 @@ services:
       - "5000:5000"
     depends_on:
       - chromadb
-      - mongo  # Añadir dependencia a MongoDB
+      - mongo # Añadir dependencia a MongoDB
     hostname: myflask
     networks:
       - default
     environment:
-      - MONGO_URI=mongodb://mymongo:27017  # Variable de entorno para MongoDB
+      - MONGO_URI=mongodb://mymongo:27017 # Variable de entorno para MongoDB
     env_file:
       - backend_data/.env
 
@@ -50,14 +50,11 @@ services:
     tty: true
     hostname: mypentester
     networks:
-      - ubuntu_network
-      - default
+      ubuntu_network:
+        ipv4_address: 192.168.100.100
+      default:
     cap_add:
       - NET_RAW # Allow raw socket access
-  kali_tester:
-    image: kalilinux/kali-rolling
-    tty: true
-    container_name: kali
   react-frontend:
     build:
       context: ./frontend_data # Make sure this path is correct
@@ -100,6 +97,20 @@ services:
       - ubuntu_network # Attach to the separate subnet
     hostname: ubuntu_http
     # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+  ubuntu_rdp:
+    networks:
+      - ubuntu_network
+    build: ubuntu_rdp
+    ports:
+      - "3389:3389"
+    hostname: ubuntu_rdp
+  ubuntu_ftp:
+    build: ubuntu_ftp
+    ports:
+      - "21:21"
+    networks:
+      - ubuntu_network
+    hostname: ubuntu_ftp
 
 networks:
   default:
