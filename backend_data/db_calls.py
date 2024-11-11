@@ -84,17 +84,7 @@ def serialize_document(document):
         document['_id'] = str(document['_id'])
     return document
 
-""" # Función para obtener todos los activos
-def get_activos():
-    try:
-        collection = db['activos']
-        activos = list(collection.find({}))
-        activos_serializados = [serialize_document(activo) for activo in activos]
-        return jsonify({"status": 200, "data": activos_serializados})
-    except Exception as e:
-        logging.error(f"Error retrieving activos: {e}")
-        return jsonify({"status": 500, "error": str(e)}) """
-
+# Función para obtener todos los activos
 def get_activos():
     try:
         collection = db['activos']
