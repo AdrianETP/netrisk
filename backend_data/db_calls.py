@@ -1,8 +1,8 @@
 import pymongo
-from pymongo import MongoClient, UpdateOne, DESCENDING
+from pymongo import MongoClient
 import logging
 from upload import generate_impact
-from flask import jsonify, current_app
+from flask import jsonify
 import google.generativeai as genai
 import os
 from datetime import datetime
@@ -84,11 +84,21 @@ def serialize_document(document):
         document['_id'] = str(document['_id'])
     return document
 
-# Función para obtener todos los activos
+""" # Función para obtener todos los activos
 def get_activos():
     try:
         collection = db['activos']
         activos = list(collection.find({}))
+        activos_serializados = [serialize_document(activo) for activo in activos]
+        return jsonify({"status": 200, "data": activos_serializados})
+    except Exception as e:
+        logging.error(f"Error retrieving activos: {e}")
+        return jsonify({"status": 500, "error": str(e)}) """
+
+def get_activos():
+    try:
+        collection = db['activos']
+        activos = list(collection.find({}, {"vul-tec": 0}))  # Excluye "vul-tec" en los resultados
         activos_serializados = [serialize_document(activo) for activo in activos]
         return jsonify({"status": 200, "data": activos_serializados})
     except Exception as e:
@@ -151,7 +161,7 @@ def get_vul_org():
         return jsonify({"status": 500, "error": str(e)})
     
 # Función para obtener vulnerabilidades técnicas
-def get_vul_tec():
+""" def get_vul_tec():
     try:
         collection = db['vul-tec']
         vul_tecs = list(collection.find({}))
@@ -159,6 +169,30 @@ def get_vul_tec():
         return jsonify({"status": 200, "data": vul_tecs_serializadas})
     except Exception as e:
         logging.error(f"Error retrieving tecnical vulnerabilities: {e}")
+        return jsonify({"status": 500, "error": str(e)}) """
+
+def get_vul_tec():
+    try:
+        collection = db['activos']
+        activos = list(collection.find({}, {"idTabla": 1, "vul-tec": 1}))  # Solo obtenemos "idTabla" y "vul-tec"
+        
+        # Serializar solo el campo "vul-tec" de cada activo
+        vul_tecs_serializadas = []
+        for activo in activos:
+            if "vul-tec" in activo:
+                for vul in activo["vul-tec"]:
+                    vul_tec_data = {
+                        "id": activo["idTabla"],  # Asigna idTabla como el nuevo "id"
+                        "vulnerability": vul.get("vulnerability", ""),
+                        "threat": vul.get("threat", ""),
+                        "impact": vul.get("impact", ""),
+                        "potentialLoss": vul.get("potentialLoss", "")
+                    }
+                    vul_tecs_serializadas.append(vul_tec_data)
+
+        return jsonify({"status": 200, "data": vul_tecs_serializadas})
+    except Exception as e:
+        logging.error(f"Error retrieving technical vulnerabilities: {e}")
         return jsonify({"status": 500, "error": str(e)})
     
 # Función para actualizar la descripción de un activo
