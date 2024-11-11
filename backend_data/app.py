@@ -8,7 +8,8 @@ from db_calls import (
     update_perdida_org, update_vul_tec_impacto, update_vul_org_impacto,
     procesar_y_guardar_resultados, procesar_y_guardar_activos, delete_reporte, 
     generar_guia, get_guia, get_reportes, get_conf, update_recurrencia,
-    update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org
+    update_prox_auditoria, generar_reporte, generar_controles, upload_file, generar_vul_org,
+    generar_y_guardar_threat
     )
 from fair_analysis import fair_analysis as FAIR
 from dashboard import ( calculate_netscore, calculate_dashboard, get_dashboard )
@@ -67,7 +68,10 @@ def api_run_pentest():
 
     # Procesa y guarda los datos
     processed_data = procesar_y_guardar_resultados(data)
-    
+
+    # Genera y guarda las amenazas
+    generar_y_guardar_threat()
+
     # Retorna el resultado procesado como JSON
     return jsonify(processed_data), 201
 

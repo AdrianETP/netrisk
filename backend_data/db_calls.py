@@ -7,6 +7,7 @@ import google.generativeai as genai
 import os
 from datetime import datetime
 import json
+import requests
 
 
 genai.configure(api_key=os.environ["API_KEY"])
@@ -47,35 +48,6 @@ def procesar_y_guardar_activos(resultados_pentest):
         collection.insert_one(document)
 
     return {"message": "Resultados procesados y guardados en la colección 'activos' correctamente"}
-
-""" def procesar_y_guardar_resultados(resultados_pentest):
-    collection = db["vul-tec"]
-    delete_documents(collection)
-
-    # Verifica si "scan" está presente en el JSON
-    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
-        print("Error: 'scan' no encontrado en los resultados del pentest")
-        return {"error": "'scan' no encontrado en los resultados del pentest"}
-
-    for ip, datos in resultados_pentest["resultado"]["scan"].items():
-        # Extrae la información relevante
-        for puerto, info in datos.get("tcp", {}).items():
-            # Verifica si el estado es "open"
-            if info.get("state") == "open":
-                dispositivo_nombre = (
-                    datos.get("hostnames")[0].get("name") if datos.get("hostnames") and datos.get("hostnames")[0].get("name") else "dispositivo"
-                )
-                document = {
-                    "id": dispositivo_nombre,  # Obtener el nombre del host o la IP
-                    "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",  # Formato para la vulnerabilidad
-                    "threat": "Acceso no autorizado",  # Valor por defecto para threat
-                    "impact": "N/A",  # Inicialmente vacío
-                    "potentialLoss": ""  # Inicialmente vacío
-                }
-                # Inserta el documento en la colección
-                collection.insert_one(document)
-
-    return {"message": "Resultados procesados y guardados correctamente"} """
 
 def procesar_y_guardar_resultados(resultados_pentest):
     collection = db["activos"]
@@ -129,6 +101,27 @@ def procesar_y_guardar_resultados(resultados_pentest):
 
     return {"message": "Resultados procesados y guardados correctamente"}
 
+
+def generar_y_guardar_threat():
+    collection = db["activos"]
+    
+    for document in collection.find():
+        for vultec in document.get("vul-tec", []):
+            if not vultec.get("threat"):
+                # Crear el prompt
+                prompt = vultec["vulnerability"]
+                idTabla = document["idTabla"]
+                
+                # Llamar al endpoint de amenaza
+                response = requests.post('http://localhost:5000/api/models/askforthreat', json={"prompt": prompt})
+                
+                if response.status_code == 200:
+                    threat = response.json().get("response")
+                    # Actualizar el campo "threat" en la base de datos
+                    collection.update_one(
+                        {"_id": document["_id"], "vul-tec.vulnerability": vultec["vulnerability"]},
+                        {"$set": {"vul-tec.$.threat": threat}}
+                    )
 
 
 # Función para serializar documentos y convertir ObjectId a cadena
