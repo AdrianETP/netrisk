@@ -53,7 +53,6 @@ services:
       ubuntu_network:
         ipv4_address: 192.168.100.4
       default:
-        ipv4_address: 192.168
     cap_add:
       - NET_RAW # Allow raw socket access
   react-frontend:
@@ -98,6 +97,7 @@ services:
       - ubuntu_network # Attach to the separate subnet
     hostname: ubuntu_http
     # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+  # ubuntu_rdp:
 
 networks:
   default:
