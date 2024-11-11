@@ -48,7 +48,7 @@ def procesar_y_guardar_activos(resultados_pentest):
 
     return {"message": "Resultados procesados y guardados en la colección 'activos' correctamente"}
 
-def procesar_y_guardar_resultados(resultados_pentest):
+""" def procesar_y_guardar_resultados(resultados_pentest):
     collection = db["vul-tec"]
     delete_documents(collection)
 
@@ -75,7 +75,60 @@ def procesar_y_guardar_resultados(resultados_pentest):
                 # Inserta el documento en la colección
                 collection.insert_one(document)
 
+    return {"message": "Resultados procesados y guardados correctamente"} """
+
+def procesar_y_guardar_resultados(resultados_pentest):
+    collection = db["activos"]
+    delete_documents(collection)
+
+    # Verifica si "scan" está presente en el JSON
+    if "resultado" not in resultados_pentest or "scan" not in resultados_pentest["resultado"]:
+        print("Error: 'scan' no encontrado en los resultados del pentest")
+        return {"error": "'scan' no encontrado en los resultados del pentest"}
+
+    for ip, datos in resultados_pentest["resultado"]["scan"].items():
+        # Ignora las IPs irrelevantes
+        if ip in ["192.168.100.1", "192.168.100.100"]:
+            continue
+        next_id = collection.count_documents({}) + 1
+        
+        # Extrae los datos del dispositivo
+        dispositivo_nombre = (
+            datos.get("hostnames")[0].get("name") if datos.get("hostnames") and datos.get("hostnames")[0].get("name") else ip
+        )
+        mac_address = datos.get("addresses", {}).get("mac", "")
+        device_type = datos.get("hostnames")[0].get("type") if datos.get("hostnames") and datos.get("hostnames")[0].get("type") else ""
+        
+        # Inicializa la estructura del documento con campos vacíos donde corresponda
+        document = {
+            "id": next_id,
+            "idTabla": dispositivo_nombre,
+            "ip": ip,
+            "macAddress": mac_address,
+            "device": device_type,
+            "operatingSystem": "Linux",
+            "desc": "",
+            "impact": "",
+            "vul-tec": []
+        }
+        
+        # Procesa los puertos abiertos
+        for puerto, info in datos.get("tcp", {}).items():
+            if info.get("state") == "open":
+                vulnerability_info = {
+                    "vulnerability": f"Puerto {puerto} ({info.get('name')}) Abierto",
+                    "threat": "",
+                    "impact": "",
+                    "potentialLoss": ""
+                }
+                document["vul-tec"].append(vulnerability_info)
+
+        # Inserta el documento en la colección solo si tiene vulnerabilidades registradas
+        if document["vul-tec"]:
+            collection.insert_one(document)
+
     return {"message": "Resultados procesados y guardados correctamente"}
+
 
 
 # Función para serializar documentos y convertir ObjectId a cadena
