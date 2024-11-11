@@ -121,7 +121,7 @@ def ask_docs(prompt):
     return jsonify({"status": 200, "response": output['response'], "data": data})
 
 
-def ask_riesgo(prompt):
+def ask_amenaza(prompt):
     try:
         client = chromadb.HttpClient(host="chromadb", port=8000)
         collection = client.get_or_create_collection(name="riesgos")
@@ -167,8 +167,7 @@ def generate_impact(prompt):
         {prompt}
         Dale una puntuacion del impacto de ese dispositivo en la red entre bajo (poco impacto), moderado (impacto moderado), alto (alto impacto), critico (impacto critico).
         Considera que tan critico seria si hubiera un incidente de seguridad y este activo dejara de existir. La empresa podria seguir funcionando? que tan bien funcionaria?
-        Solo puedes usar una palabra para tu respuesta. No puedes usar mas que eso
+        Solo puedes usar una palabra para tu respuesta. No puedes usar mas que es 
         """
     )
     return jsonify({"status":200, "response":output["response"]})
-
