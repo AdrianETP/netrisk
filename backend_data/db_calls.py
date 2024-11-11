@@ -682,3 +682,4 @@ def delete_reporte(id):
         return jsonify({"status": 200, "message": "Impacto actualizado exitosamente"})
     except Exception as e:
         return jsonify({"status": 500, "error": str(e)})
+    
