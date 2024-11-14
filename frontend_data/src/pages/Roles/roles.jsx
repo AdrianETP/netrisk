@@ -55,7 +55,7 @@ function Roles() {
 		{ key: "impact", label: "IMPACTO" },
 	];
 
-	const editableColumns = ["pendingActions", "status"];
+	const editableColumns = ["pendingActions", "status", "assignedPerson"];
 	const dropdownOptions = {
 		status: ["Cumplido", "En proceso", "Sin cumplir"],
 	};

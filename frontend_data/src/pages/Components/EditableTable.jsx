@@ -12,6 +12,7 @@ import {
 	Button,
 	Textarea,
 	useDisclosure,
+	Input,
 } from "@nextui-org/react";
 import {
 	ModalContent,
@@ -47,6 +48,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase.js";
+import { useCallback } from "react";
+import debounce from "lodash/debounce";
 
 function EditableTable({
 	columns,
@@ -107,6 +110,30 @@ function EditableTable({
 		},
 	};
 
+	const debouncedUpdate = useCallback(
+		debounce((itemId, value) => {
+			put(
+				`api/roles/${itemId}/persona`,
+				{ assignedPerson: value },
+				() => {
+					toast.success("¡Información guardada correctamente!");
+				},
+				() => {
+					console.error("Error al guardar la información");
+					toast.error("Error al guardar la información");
+				}
+			);
+		}, 1000),
+		[] 
+	);
+
+	// Use the debounced function in the onChange handler
+	const onAssignedPersonChange = (itemId) => (event) => {
+		const newValue = event.target.value;
+		debouncedUpdate(itemId, newValue);
+	};
+
+
 	const handleSelectChange = (rowId, columnKey, newValue) => {
 		// Determine the endpoint based on the current route
 		let endpoint;
@@ -114,7 +141,7 @@ function EditableTable({
 			endpoint = `api/roles/${rowId}/estatus`;
 		} else if (location.pathname === "/personas") {
 			endpoint = `api/personas/${rowId}/estatus`;
-		} else if (location.pathname === "/accesos") {		
+		} else if (location.pathname === "/accesos") {
 			const userId = rowId; // Unique identifier for the user
 			const updates = {
 				role: newValue.target.value,
@@ -312,6 +339,24 @@ function EditableTable({
 					</div>
 				);
 			}
+			if (column.key === "assignedPerson") {
+				return (
+					<div>
+						<Input
+							label=""
+							size="sm"
+							placeholder={
+								item.assignedPerson.trim() === ""
+									? "Sin asignar"
+									: item.assignedPerson
+							}
+							labelPlacement="outside"
+							variant="bordered"
+							onChange={onAssignedPersonChange(item.id)}
+						/>
+					</div>
+				);
+			}
 
 			const options = dropdownOptions[column.key] || [];
 			return (
@@ -433,7 +478,7 @@ function EditableTable({
 						wrapper: "bg-[#2D2D2D]",
 						th: "bg-[#404040] text-color-[#F6F6F6] font-semibold text-xs",
 						td: "font-normal text-xs max-w-[180px]",
-						base: `${baseHeight} overflow-auto`, 
+						base: `${baseHeight} overflow-auto`,
 						table: "min-h-[120px] ",
 					}}
 				>
