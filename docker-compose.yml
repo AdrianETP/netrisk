@@ -51,7 +51,7 @@ services:
     hostname: mypentester
     networks:
       ubuntu_network:
-        ipv4_address: 192.168.100.4
+        ipv4_address: 192.168.100.100
       default:
     cap_add:
       - NET_RAW # Allow raw socket access
@@ -97,6 +97,20 @@ services:
       - ubuntu_network # Attach to the separate subnet
     hostname: ubuntu_http
     # command: ["sleep", "infinity"]  # Keeps the container running for interaction
+  ubuntu_rdp:
+    networks:
+      - ubuntu_network
+    build: ubuntu_rdp
+    ports:
+      - "3389:3389"
+    hostname: ubuntu_rdp
+  ubuntu_ftp:
+    build: ubuntu_ftp
+    ports:
+      - "21:21"
+    networks:
+      - ubuntu_network
+    hostname: ubuntu_ftp
 
 networks:
   default:
