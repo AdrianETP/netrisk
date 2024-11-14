@@ -77,7 +77,7 @@ def procesar_y_guardar_resultados(resultados_pentest):
             "idTabla": dispositivo_nombre,
             "ip": ip,
             "macAddress": mac_address,
-            "device": device_type,
+            "device": "PC",
             "operatingSystem": "Linux",
             "desc": "",
             "impact": "",
