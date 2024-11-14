@@ -83,6 +83,15 @@ Corre los siguientes comandos:
         export { auth, db };
 
 2. Reemplaza los valores con las credenciales apropiadas para tu entorno.
+3. Crea un archivo **.env** adentro de netrisk/backend_data con lo siguiente:
+
+    import { initializeApp } from  "firebase/app";
+        import { getAuth, setPersistence, browserSessionPersistence } from  "firebase/auth";
+        import { getFirestore } from  'firebase/firestore';
+        
+        export API_KEY="API_KEY"
+
+5. Revisa los pasos para reemplazar la API key con una válida: [Enlace](https://ai.google.dev/gemini-api/docs/api-key?hl=es-419)
 
 ## Ejecución
 
@@ -91,4 +100,4 @@ Corre los siguientes comandos:
 		cd ./netrisk
 		docker-compose up
 
-2. Accede a la aplicación en tu navegador en http://localhost:3000.
+2. Accede a la aplicación en tu navegador en http://localhost:5173/login.
