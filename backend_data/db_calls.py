@@ -16,10 +16,12 @@ client = MongoClient('mongodb://mymongo:27017/')
 db = client['local']  # Nombre de base de datos
 print(db.list_collection_names())
 
+# Función para borrar la colección anterior
 def delete_documents(collection):
     result = collection.delete_many({})  # Deletes all documents in the collection
     return {"message": f"{result.deleted_count} documents deleted from the collection."}
 
+# Función para acceder y mostrar la nueva colección
 def procesar_y_guardar_activos(resultados_pentest):
     collection = db["activos"]
     delete_documents(collection)
